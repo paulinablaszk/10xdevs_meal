@@ -7,7 +7,7 @@ MealPlanner to aplikacja webowa pomagająca osobom dbającym o zdrowie oraz będ
 Dostępne w sieci przepisy rzadko zawierają wiarygodne informacje o kaloryczności i rozkładzie makroskładników. Ręczne wyliczanie tych wartości wymaga czasochłonnych obliczeń i wiedzy dietetycznej. Osoby na redukcji lub dbające o zdrowie potrzebują narzędzia, które automatycznie i wiarygodnie policzy kcal oraz makro, uwzględniając ich indywidualne preferencje (alergeny, limity kaloryczne, cele makro).
 
 ## 3. Wymagania funkcjonalne
-1. Rejestracja i logowanie użytkownika (AUTH).
+1. Rejestracja i logowanie użytkownika (unikalny login w postaci e-mail i hasło).
 2. Strona profilu z możliwością ustawienia preferencji żywieniowych: alergeny, dzienny limit kcal, cele makro, śledzone mikroelementy.
 3. Dodawanie nowego przepisu w zdefiniowanym formacie (składniki + ilości + kroki przygotowania).
 4. Automatyczne wyliczanie kcal i makroskładników przez moduł AI.
@@ -30,7 +30,7 @@ Dostępne w sieci przepisy rzadko zawierają wiarygodne informacje o kaloryczno�
 ## 5. Historyjki użytkowników
 | ID | Tytuł | Opis | Kryteria akceptacji |
 |----|-------|------|----------------------|
-| US-001 | Rejestracja konta | Jako użytkownik chcę zalogować się za pomocą zewnętrznego dostawcy uwierzytelniania (AUTH), aby uzyskać dostęp do funkcji zapisywania własnych przepisów. | - Po sukcesie użytkownik jest automatycznie zalogowany.  |
+| US-001 | Rejestracja konta | Jako użytkownik chcę zalogować się za pomocą e-maila i hasła, aby uzyskać dostęp do funkcji zapisywania własnych przepisów. | -Po poprawnym wypełnieniu formularza i weryfikacji danych konto jest aktywowane.  <br/>- PUżytkownik otrzymuje potwierdzenie pomyślnej rejestracji i zostaje zalogowany.  |
 | US-002 | Logowanie | Jako zarejestrowany użytkownik chcę się zalogować, aby uzyskać dostęp do moich przepisów. | - Poprawne dane logują, błędne wyświetlają komunikat. <br/>- Po zalogowaniu użytkownik trafia na listę przepisów. |
 | US-003 | Wylogowanie | Jako zalogowany użytkownik chcę się wylogować, aby zabezpieczyć moje dane. | - Kliknięcie „Wyloguj” kończy sesję i przenosi na stronę logowania. |
 | US-004 | Dodanie przepisu | Jako użytkownik chcę dodać nowy przepis w określonym formacie, aby poznać jego wartości odżywcze. | - Formularz wymaga listy składników (nazwa, ilość, jednostka) i kroków przygotowania. <br/>- Po zapisaniu AI oblicza kcal i makro. <br/> |

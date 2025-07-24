@@ -1,94 +1,93 @@
-# 10x Astro Starter
+# MealPlanner
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+[![Node](https://img.shields.io/badge/node-22.14.0-green)](https://nodejs.org) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+Secure and personal AI-powered nutrition calculator for home recipes. MealPlanner analyses user-provided ingredients and automatically returns calories and macronutrients (protein, fat, carbs) with up to 90 % accuracy. Store private recipes, tailor dietary preferences, and edit nutritional data whenever needed.
+
+## Table of Contents
+1. Tech Stack
+2. Getting Started Locally
+3. Available Scripts
+4. Project Scope
+5. Project Status
+6. License
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+**Frontend**  
+- Astro 5.5.5  
+- React 19.0.0  
+- TypeScript 5  
+- Tailwind CSS 4.0.17  
+- Shadcn/ui  
+- Lucide-react
 
-## Prerequisites
+**Backend & Infrastructure**  
+- Supabase (PostgreSQL, Auth)  
+- OpenRouter.ai (LLM access for ingredient parsing)  
+- GitHub Actions (CI/CD)  
+- DigitalOcean Docker image (deployment)
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+## Getting Started Locally
 
-## Getting Started
+### Prerequisites  
+- Node.js 22.14.0 (see `.nvmrc`)  
+- npm 10+
 
-1. Clone the repository:
-
+1. Clone the repository
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+git clone https://github.com/paulinablaszk/10xdevs_meal
+cd mealplanner
 ```
 
-2. Install dependencies:
-
+2. Install dependencies
 ```bash
 npm install
 ```
 
-3. Run the development server:
-
+3. Start the development server
 ```bash
 npm run dev
 ```
 
-4. Build for production:
-
+4. Build and preview production version
 ```bash
 npm run build
+npm run preview
 ```
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+| Script | Description |
+| ------ | ----------- |
+| `npm run dev` | Start the development server with live reload |
+| `npm run build` | Build the application for production |
+| `npm run preview` | Preview the built production app |
+| `npm run lint` | Run ESLint against all source files |
+| `npm run lint:fix` | Run ESLint and automatically fix problems |
+| `npm run format` | Format files with Prettier |
+| `npm run astro` | Run Astro CLI commands |
 
-## Project Structure
+## Project Scope
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+**Included in MVP**  
+- User authentication (Supabase)  
+- Private recipe CRUD (create, read, update, delete)  
+- User dietary preferences (allergens, daily kcal, macro goals)  
+- AI calorie & macro calculation with manual correction option  
+- Validation and clear error handling when AI cannot parse ingredients
 
-## AI Development Support
+**Out of scope for MVP**  
+- Importing recipes from external URLs  
+- Media uploads (photos, video)  
+- Sharing or social features  
+- Advanced analytics, payment integrations, production-grade scaling
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+## Project Status
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
-
-### Cursor IDE
-
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
-
-### GitHub Copilot
-
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
-
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+Version 0.0.1 – Minimum Viable Product under active development.  
+Next milestone: reach ≤10 % average error in nutritional calculations across test set of 10 recipes.
 
 ## License
 
-MIT
+This project is licensed under the MIT License – see the [LICENSE](./LICENSE) file for details.

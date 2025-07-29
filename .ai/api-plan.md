@@ -12,108 +12,149 @@
 
 > All URLs are prefixed with `/api` and return JSON. All endpoints require a valid Supabase JWT in the `Authorization: Bearer <token>` header **unless explicitly stated otherwise**.
 
-### 2.1 Profiles
+### 2.2 Profile
 
-| HTTP | Path | Description |
-|------|------|-------------|
-| GET  | `/api/profile` | Get the authenticated user profile. Creates a default profile on-the-fly if missing. |
-| POST | `/api/profile` | Create profile (first-time users). Usually called implicitly after sign-up. |
-| PUT /PATCH | `/api/profile` | Update dietary preferences: allergens, calorie target. |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/profile | Retrieve current user profile |
+| POST | /api/profile | Create profile (first-time only) |
+| PATCH | /api/profile | Update profile preferences |
 
-**Request body (POST/PUT/PATCH)**
-```json
-{
-  "calorieTarget": 2000,
-  "allergens": ["gluten", "peanuts"]
-}
+##### 2.3.1 GET /api/recipes
+Returns a paginated list of **current user’s** recipes. Supports filtering, sorting and full-text search.
+
+Query parameters:
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `page` | integer (≥1) | 1 | Page number (1-based) |
+| `limit` | integer (1-50) | 20 | Page size |
+| `search` | string | – | Full-text search on recipe `name` |
+| `ingredient` | string (repeatable) | – | Filter recipes that contain **all** specified ingredient names |
+| `sort` | enum `name\|created_at\|kcal` | `created_at` | Sort field |
+| `order` | enum `asc\|desc` | `desc` | Sort direction |
+
+Example request
+```
+GET /api/recipes?page=2&limit=10&ingredient=chicken&sort=kcal&order=asc
 ```
 
-**Response body** (200)
+Response 200 OK
 ```json
 {
-  "userId": "uuid",
-  "calorieTarget": 2000,
-  "allergens": ["gluten", "peanuts"],
-  "createdAt": "2024-07-25T12:00:00Z",
-  "updatedAt": "2024-07-25T12:00:00Z"
-}
-```
-
-Success codes: `200 OK`, `201 Created`
-
-Error codes: `400 Bad Request` (validation), `401 Unauthorized`, `409 Conflict` (duplicate), `500 Internal Server Error`
-
----
-
-### 2.2 Recipes
-
-| HTTP | Path | Description |
-|------|------|-------------|
-| GET  | `/api/recipes` | List authenticated user recipes. Supports pagination, search, and sorting. |
-| POST | `/api/recipes` | Create a new recipe. Triggers an AI Run automatically. |
-| GET  | `/api/recipes/{recipeId}` | Retrieve full recipe details. |
-| PUT /PATCH | `/api/recipes/{recipeId}` | Update a recipe (ingredients or steps). Triggers new AI Run unless `isManualOverride` is `true`. |
-| PATCH | `/api/recipes/{recipeId}/nutrition` | Manually override nutrition (sets `isManualOverride` = `true`). |
-| DELETE | `/api/recipes/{recipeId}` | Permanently delete a recipe. |
-
-**Query parameters for list**
-- `page` (integer, default 1)
-- `limit` (integer, default 20, max 100)
-- `search` (string; matches `name` ILIKE)
-- `sort` (enum: `created_at`, `name`, `kcal`; default `created_at`)
-- `order` (`asc`\|`desc`, default `desc`)
-
-**Request body – create / update**
-```json
-{
-  "name": "Chicken salad",
-  "description": "High-protein lunch option",
-  "ingredients": [
-    { "name": "Chicken breast", "amount": 200, "unit": "g" },
-    { "name": "Olive oil", "amount": 1, "unit": "łyżka" }
-  ],
-  "steps": [
-    "Season the chicken.",
-    "Grill for 6 minutes each side."
+  "page": 2,
+  "limit": 10,
+  "total": 42,
+  "results": [
+    {
+      "id": "34b4b1bb-b6a0-4c98-8109-9094b0abe5bd",
+      "name": "Chicken Salad",
+      "kcal": 450.0,
+      "protein_g": 45.0,
+      "fat_g": 20.0,
+      "carbs_g": 10.0,
+      "created_at": "2025-07-25T08:00:00Z"
+    },
+    // ... up to `limit` items ...
   ]
 }
 ```
+Notes:
+- The `total` field represents total matching recipes (for pagination UI).
+- Nutrient fields may be `null` while AI calculation is pending.
 
-**Response body – recipe**
-```json
-{
-  "id": "uuid",
-  "userId": "uuid",
-  "name": "Chicken salad",
-  "description": "High-protein lunch option",
-  "ingredients": [...],
-  "steps": [...],
-  "kcal": 350,
-  "proteinG": 42,
-  "fatG": 10,
-  "carbsG": 5,
-  "isManualOverride": false,
-  "createdAt": "2024-07-25T12:00:00Z",
-  "updatedAt": "2024-07-25T12:00:00Z"
-}
-```
-
-Success codes: `200 OK`, `201 Created`, `204 No Content` (DELETE)
-
-Error codes: `400 Bad Request`, `401 Unauthorized`, `403 Forbidden` (other user), `404 Not Found`, `409 Conflict` (recipe limit reached), `422 Unprocessable Entity` (AI error), `500 Internal Server Error`
+Errors
+| Code | Message | Condition |
+|------|---------|-----------|
+| 400 | "Invalid query parameter" | `limit` >50, `page` <1, unknown `sort` field, etc. |
+| 401 | "Unauthenticated" | Missing/invalid JWT |
+| 429 | "Rate limit exceeded" | Per-IP limit 60 RPM |
 
 ---
 
-### 2.3 Static reference – Units
-
-| HTTP | Path | Description |
-|------|------|-------------|
-| GET  | `/api/units` | Returns the full `unit_type` enum as an array. Public, no auth required (cache-able). | 
-
-Response
+#### 2.3.2 POST /api/recipes
+Request
 ```json
-["g", "dag", "kg", "ml", "l", "łyżeczka", "łyżka", "szklanka", "pęczek", "garść", "sztuka", "plaster", "szczypta", "ząbek"]
+{
+  "name": "Chicken Salad",
+  "description": "Quick high-protein salad",
+  "ingredients": [
+    {"name": "Chicken breast", "amount": 200, "unit": "g"},
+    {"name": "Olive oil", "amount": 1, "unit": "łyżka"}
+  ],
+  "steps": ["Grill chicken", "Mix ingredients" ]
+}
 ```
+Validation
+- `ingredients` array non-empty and each item passes `validate_ingredients` (unit in `unit_type`, amount >0).
+- Max 100 recipes per user (DB trigger).
+
+Response 202 Accepted
+```json
+{
+  "recipe": { /* stored record with kcal & macros = null */ },
+  "ai_run": { "id": 123, "status": "pending" }
+}
+```
+
+Errors
+| Code | Message |
+|------|---------|
+| 400 | "Validation failed" |
+| 401 | "Unauthenticated" |
+| 429 | "Recipe quota exceeded" |
+
+#### 2.3.3 GET /api/recipes/{id}
+Returns full recipe JSON.
+
+Response 200
+```json
+{
+  "id": "uuid",
+  "name": "Chicken Salad",
+  "description": "Quick high-protein salad",
+  "ingredients": [...],
+  "steps": [...],
+  "kcal": 450.0,
+  "protein_g": 45.0,
+  "fat_g": 20.0,
+  "carbs_g": 10.0,
+  "is_manual_override": false,
+  "created_at": "...",
+  "updated_at": "..."
+}
+```
+Errors 401, 403 (accessing others), 404.
+
+(List, PUT, PATCH, DELETE endpoints follow similar pattern – omit here for brevity in plan.)
+
+---
+
+### 2.4 AI Runs
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/recipes/{recipeId}/ai-runs | List AI runs for recipe |
+| POST | /api/recipes/{recipeId}/ai-runs | Re-trigger nutrition calculation |
+| GET | /api/ai-runs/{id} | Get single AI run |
+
+`status` values come from `ai_status` enum: `pending`, `success`, `error`.
+
+Response example (GET single)
+```json
+{
+  "id": 123,
+  "recipe_id": "uuid",
+  "status": "error",
+  "prompt": "...",
+  "response": null,
+  "error_message": "Unknown unit 'cup'",
+  "confidence": null,
+  "created_at": "..."
+}
+```
+
+Rate limiting: Max 5 re-tries per recipe per hour (429 Too Many Requests).
+
 
 ---
 

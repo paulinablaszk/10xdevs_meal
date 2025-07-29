@@ -28,3 +28,10 @@ export const recipeListQuerySchema = z.object({
   order: z.enum(['asc', 'desc']).default('desc'),
   ingredient: z.array(z.string()).optional(),
 }); 
+
+// Schemat dla parametru id przepisu
+export const recipeIdParamSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type RecipeIdParam = z.infer<typeof recipeIdParamSchema>; 

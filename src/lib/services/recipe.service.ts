@@ -155,6 +155,44 @@ export class RecipeService {
     };
   }
 
+  async getRecipeById(id: string): Promise<RecipeDTO> {
+    // 1. Pobierz przepis bez filtrowania po user_id aby móc zwrócić 403 jeśli należy do innego użytkownika
+    const { data: recipe, error } = await this.supabase
+      .from('recipes')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        throw new Error('NOT_FOUND');
+      }
+      throw error;
+    }
+
+    // 2. Sprawdź czy przepis należy do zalogowanego użytkownika
+    if (recipe.user_id !== this.userId) {
+      throw new Error('FORBIDDEN');
+    }
+
+    // 3. Mapowanie na DTO
+    return {
+      id: recipe.id,
+      userId: recipe.user_id,
+      name: recipe.name,
+      description: recipe.description,
+      ingredients: recipe.ingredients as unknown as IngredientDTO[],
+      steps: recipe.steps as unknown as string[],
+      kcal: recipe.kcal ?? 0,
+      proteinG: recipe.protein_g ?? 0,
+      fatG: recipe.fat_g ?? 0,
+      carbsG: recipe.carbs_g ?? 0,
+      isManualOverride: recipe.is_manual_override,
+      createdAt: recipe.created_at,
+      updatedAt: recipe.updated_at,
+    };
+  }
+
   // Mock metody do obliczania wartości odżywczych
   private async calculateNutrition(recipe: RecipeCreateCommand) {
     // Symulacja opóźnienia odpowiedzi z API

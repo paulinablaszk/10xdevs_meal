@@ -1,13 +1,14 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"],
   "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
+    "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     }
   }
 }

@@ -114,6 +114,7 @@ export interface RecipeListQuery {
   search?: string;
   sort?: 'created_at' | 'name' | 'kcal';
   order?: 'asc' | 'desc';
+  ingredient?: string[];
 }
 
 /* -------------------------------------------------------------------------- */

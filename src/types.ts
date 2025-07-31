@@ -69,15 +69,24 @@ export interface IngredientDTO {
 /*                                  RECIPE                                    */
 /* -------------------------------------------------------------------------- */
 
-type RecipeBaseDTO = RenameKeys<RecipeRow>;
-
 /**
  * Pełny DTO receptury zwracany z API.
  */
-export type RecipeDTO = Omit<RecipeBaseDTO, 'ingredients' | 'steps'> & {
+export interface RecipeDTO {
+  id: string;
+  name: string;
+  description: string | null;
   ingredients: IngredientDTO[];
   steps: string[];
-};
+  kcal: number;
+  protein_g: number;
+  fat_g: number;
+  carbs_g: number;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  is_manual_override: boolean;
+}
 
 /**
  * Model komendy tworzenia receptury (POST /api/recipes).
@@ -100,9 +109,9 @@ export type RecipeUpdateCommand = Partial<RecipeCreateCommand>;
  */
 export interface RecipeNutritionOverrideCommand {
   kcal: number;
-  proteinG: number;
-  fatG: number;
-  carbsG: number;
+  protein_g: number;
+  fat_g: number;
+  carbs_g: number;
 }
 
 /**

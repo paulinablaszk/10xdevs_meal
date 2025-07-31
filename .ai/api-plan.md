@@ -92,7 +92,6 @@ Response 202 Accepted
 ```json
 {
   "recipe": { /* stored record with kcal & macros = null */ },
-  "ai_run": { "id": 123, "status": "pending" }
 }
 ```
 

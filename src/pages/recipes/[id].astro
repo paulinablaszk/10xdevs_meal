@@ -1,0 +1,38 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { RecipeService } from '@/lib/services/recipe.service';
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/recipes');
+}
+
+const recipeService = new RecipeService(Astro.locals.supabase);
+
+try {
+  const recipe = await recipeService.getRecipeById(id);
+
+  if (!recipe) {
+    return Astro.redirect('/recipes');
+  }
+} catch (error) {
+  if (error.message === 'NOT_FOUND') {
+    return Astro.redirect('/recipes');
+  }
+  if (error.message === 'FORBIDDEN') {
+    return Astro.redirect('/login');
+  }
+  throw error;
+}
+---
+
+<Layout title="Przepis">
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-4xl font-bold mb-8">Przepis został zapisany!</h1>
+      <p class="text-lg mb-4">Twój przepis został pomyślnie zapisany. Wkrótce będzie dostępny do przeglądania.</p>
+      <a href="/recipes" class="text-blue-500 hover:underline">Wróć do listy przepisów</a>
+    </div>
+  </main>
+</Layout> 

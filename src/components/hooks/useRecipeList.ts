@@ -9,11 +9,11 @@ const mapToViewModel = (recipe: RecipeDTO): RecipeListItemVM => {
     id: recipe.id,
     name: recipe.name,
     kcal: recipe.kcal ?? null,
-    proteinG: recipe.protein_g ?? null,
-    fatG: recipe.fat_g ?? null,
-    carbsG: recipe.carbs_g ?? null,
-    createdAt: recipe.created_at,
-    aiStatus: 'done' // Tymczasowo ustawiam na 'done', później dodamy właściwe mapowanie
+    proteinG: recipe.proteinG ?? null,
+    fatG: recipe.fatG ?? null,
+    carbsG: recipe.carbsG ?? null,
+    createdAt: recipe.createdAt,
+    aiStatus: 'pending' // Tymczasowo ustawiam na 'pending', później dodamy właściwe mapowanie
   };
 };
 

@@ -105,10 +105,9 @@ Wszystkie wyjątki dziedziczą po bazowej klasie `OpenRouterError`, posiadające
    ```bash
    npm install ajv @types/ajv --save
    ```
-2. Utwórz plik `.env` i dodaj:
+2. W pliku .env masz:
    ```env
    OPENROUTER_API_KEY="sk-..."
-   OPENROUTER_BASE_URL="https://openrouter.ai/api/v1" # opcjonalnie
    ```
 3. Zaktualizuj `astro.config.mjs`, aby w środowiskach produkcyjnych zmienne `.env` były dostępne zarówno po stronie serwera, jak i klienta (jeśli wymagane).
 

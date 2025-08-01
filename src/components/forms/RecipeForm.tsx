@@ -11,6 +11,7 @@ import { IngredientRow } from "./IngredientRow";
 import { StepsTextarea } from "./StepsTextarea";
 import { toast } from "sonner";
 import { FullScreenSpinner } from "@/components/ui/full-screen-spinner";
+import { AlertAIError } from "@/components/AlertAIError";
 import { useState } from "react";
 
 const recipeFormSchema = z.object({
@@ -30,6 +31,7 @@ export type FormData = z.infer<typeof recipeFormSchema>;
 
 export function RecipeForm() {
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   
   const {
     register,
@@ -52,6 +54,8 @@ export function RecipeForm() {
 
   const onSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
+      setAiError(null);
+      
       const command: RecipeCreateCommand = {
         name: formData.name,
         description: null,
@@ -72,15 +76,25 @@ export function RecipeForm() {
       });
 
       if (!response.ok) {
+        const data = await response.json();
+        
         if (response.status === 401) {
           window.location.href = "/login";
           return;
         }
+        
         if (response.status === 429) {
           toast.error("Przekroczono limit przepisów na użytkownika.");
           return;
         }
-        throw new Error("Błąd serwera");
+
+        // Obsługa błędów AI
+        if (data.error === 'AI Error') {
+          setAiError(data.message);
+          return;
+        }
+
+        throw new Error(data.message || "Błąd serwera");
       }
 
       const data = await response.json();
@@ -105,6 +119,10 @@ export function RecipeForm() {
     <>
       {isRedirecting && <FullScreenSpinner />}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {aiError && (
+          <AlertAIError message={aiError} />
+        )}
+
         <div className="space-y-4">
           <div>
             <Input
@@ -163,7 +181,7 @@ export function RecipeForm() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Zapisywanie...
+              Obliczanie wartości odżywczych...
             </>
           ) : (
             <>

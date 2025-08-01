@@ -4,6 +4,7 @@ import { recipeListQuerySchema } from '../../../lib/validation/recipe';
 import { DEFAULT_USER_ID } from '../../../db/supabase.client';
 import { ZodError } from 'zod';
 import { PostgrestError } from '@supabase/supabase-js';
+import { OpenRouterError, AuthenticationError, RateLimitError, ModelNotSupportedError, NetworkError, InvalidSchemaError } from '../../../lib/services/openrouter.service';
 
 export const prerender = false;
 
@@ -48,6 +49,32 @@ export const POST: APIRoute = async ({ request, locals }) => {
           { status: 409 }
         );
       }
+    }
+
+    // Obsługa błędów OpenRouter
+    if (error instanceof OpenRouterError) {
+      const status = error.statusCode;
+      let message = error.message;
+
+      if (error instanceof AuthenticationError) {
+        message = 'Błąd uwierzytelniania API - skontaktuj się z administratorem';
+      } else if (error instanceof RateLimitError) {
+        message = 'Przekroczono limit zapytań do AI - spróbuj ponownie za chwilę';
+      } else if (error instanceof ModelNotSupportedError) {
+        message = 'Model AI jest tymczasowo niedostępny - spróbuj ponownie za chwilę';
+      } else if (error instanceof NetworkError) {
+        message = 'Problem z połączeniem do serwisu AI - spróbuj ponownie za chwilę';
+      } else if (error instanceof InvalidSchemaError) {
+        message = 'AI zwróciło nieprawidłowy format danych - spróbuj ponownie';
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          error: 'AI Error',
+          message 
+        }), 
+        { status }
+      );
     }
 
     // Błąd AI lub inny nieoczekiwany błąd

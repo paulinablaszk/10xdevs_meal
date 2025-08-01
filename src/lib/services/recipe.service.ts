@@ -3,6 +3,7 @@ import type { Database } from '../../db/database.types';
 import type { RecipeCreateCommand, RecipeDTO, IngredientDTO, RecipeListQuery } from '../../types';
 import { recipeCreateSchema } from '../validation/recipe';
 import { DEFAULT_USER_ID } from '../../db/supabase.client';
+import { nutritionService } from './nutrition.service';
 
 // Przykładowe przepisy do testów z wartościami odżywczymi dla całych dań
 export const TEST_RECIPES = {
@@ -69,11 +70,7 @@ export class RecipeService {
       throw new Error('Przekroczono limit 100 przepisów na użytkownika');
     }
 
-    // 3. Przygotowanie do wywołania AI
-    // TODO: Zaimplementować prawdziwe wywołanie AI
-    const nutritionValues = await this.calculateNutrition(validatedData);
-
-    // 4. Zapis przepisu z wartościami odżywczymi
+    // 3. Najpierw tworzymy przepis bez wartości odżywczych
     const { data: recipe, error: recipeError } = await this.supabase
       .from('recipes')
       .insert({
@@ -82,7 +79,10 @@ export class RecipeService {
         description: validatedData.description,
         ingredients: validatedData.ingredients as unknown as Database['public']['Tables']['recipes']['Insert']['ingredients'],
         steps: validatedData.steps as unknown as Database['public']['Tables']['recipes']['Insert']['steps'],
-        ...nutritionValues,
+        kcal: 0,
+        protein_g: 0,
+        fat_g: 0,
+        carbs_g: 0
       })
       .select()
       .single();
@@ -95,22 +95,51 @@ export class RecipeService {
       throw new Error('Nie udało się utworzyć przepisu');
     }
 
-    // 5. Mapowanie na DTO
-    return {
-      id: recipe.id,
-      userId: recipe.user_id,
-      name: recipe.name,
-      description: recipe.description,
-      ingredients: recipe.ingredients as unknown as IngredientDTO[],
-      steps: recipe.steps as unknown as string[],
-      kcal: recipe.kcal ?? 0,
-      proteinG: recipe.protein_g ?? 0,
-      fatG: recipe.fat_g ?? 0,
-      carbsG: recipe.carbs_g ?? 0,
-      isManualOverride: recipe.is_manual_override,
-      createdAt: recipe.created_at,
-      updatedAt: recipe.updated_at,
-    };
+    // 4. Obliczamy wartości odżywcze
+    try {
+      const nutritionValues = await nutritionService.calculateNutrition(validatedData.ingredients, recipe.id);
+
+      // 5. Aktualizujemy przepis o wartości odżywcze
+      const { data: updatedRecipe, error: updateError } = await this.supabase
+        .from('recipes')
+        .update(nutritionValues)
+        .eq('id', recipe.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      if (!updatedRecipe) {
+        throw new Error('Nie udało się zaktualizować przepisu o wartości odżywcze');
+      }
+
+      // 6. Mapowanie na DTO
+      return {
+        id: updatedRecipe.id,
+        userId: updatedRecipe.user_id,
+        name: updatedRecipe.name,
+        description: updatedRecipe.description,
+        ingredients: updatedRecipe.ingredients as unknown as IngredientDTO[],
+        steps: updatedRecipe.steps as unknown as string[],
+        kcal: updatedRecipe.kcal ?? 0,
+        proteinG: updatedRecipe.protein_g ?? 0,
+        fatG: updatedRecipe.fat_g ?? 0,
+        carbsG: updatedRecipe.carbs_g ?? 0,
+        isManualOverride: updatedRecipe.is_manual_override,
+        createdAt: updatedRecipe.created_at,
+        updatedAt: updatedRecipe.updated_at,
+      };
+    } catch (error) {
+      // W przypadku błędu AI, usuwamy utworzony przepis
+      await this.supabase
+        .from('recipes')
+        .delete()
+        .eq('id', recipe.id);
+      
+      throw error;
+    }
   }
 
   async listRecipes(filters: RecipeListQuery) {
@@ -148,9 +177,19 @@ export class RecipeService {
       limit,
       total: count || 0,
       results: recipes.map(recipe => ({
-        ...recipe,
-        ingredients: recipe.ingredients as unknown as RecipeDTO['ingredients'],
+        id: recipe.id,
+        userId: recipe.user_id,
+        name: recipe.name,
+        description: recipe.description,
+        ingredients: recipe.ingredients as unknown as IngredientDTO[],
         steps: recipe.steps as unknown as string[],
+        kcal: recipe.kcal ?? 0,
+        proteinG: recipe.protein_g ?? 0,
+        fatG: recipe.fat_g ?? 0,
+        carbsG: recipe.carbs_g ?? 0,
+        isManualOverride: recipe.is_manual_override,
+        createdAt: recipe.created_at,
+        updatedAt: recipe.updated_at,
       })),
     };
   }
@@ -193,26 +232,7 @@ export class RecipeService {
     };
   }
 
-  // Mock metody do obliczania wartości odżywczych
   private async calculateNutrition(recipe: RecipeCreateCommand) {
-    // Symulacja opóźnienia odpowiedzi z API
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Zwracamy zmockowane wartości dla znanych przepisów lub domyślne wartości
-    if (recipe.name === TEST_RECIPES.CHICKEN_RICE.name) {
-      return TEST_RECIPES.CHICKEN_RICE.nutrition;
-    }
-    
-    if (recipe.name === TEST_RECIPES.PROTEIN_SHAKE.name) {
-      return TEST_RECIPES.PROTEIN_SHAKE.nutrition;
-    }
-
-    // Dla nieznanych przepisów zwracamy przybliżone wartości
-    return {
-      kcal: 500,
-      protein_g: 25,
-      fat_g: 20,
-      carbs_g: 45
-    };
+    return nutritionService.calculateNutrition(recipe.ingredients);
   }
 } 

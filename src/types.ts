@@ -72,21 +72,10 @@ export interface IngredientDTO {
 /**
  * Pełny DTO receptury zwracany z API.
  */
-export interface RecipeDTO {
-  id: string;
-  name: string;
-  description: string | null;
+export type RecipeDTO = RenameKeys<RecipeRow> & {
   ingredients: IngredientDTO[];
   steps: string[];
-  kcal: number;
-  protein_g: number;
-  fat_g: number;
-  carbs_g: number;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-  is_manual_override: boolean;
-}
+};
 
 /**
  * Model komendy tworzenia receptury (POST /api/recipes).
@@ -133,4 +122,20 @@ export interface RecipeListQuery {
 /**
  * DTO pojedynczego zadania AI (GET /api/ai-runs/{id}).
  */
-export type AiRunDTO = RenameKeys<AiRunRow>; 
+export type AiRunDTO = RenameKeys<AiRunRow>;
+
+/**
+ * Specyfikacja schematu JSON dla odpowiedzi z modelu LLM.
+ */
+export interface JSONSchemaSpec {
+  type: "json_schema";
+  json_schema: {
+    name: string;
+    strict: boolean;
+    schema: {
+      type: string;
+      properties: Record<string, unknown>;
+      required?: string[];
+    };
+  };
+} 

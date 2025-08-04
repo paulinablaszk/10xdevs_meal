@@ -138,4 +138,14 @@ export interface JSONSchemaSpec {
       required?: string[];
     };
   };
+}
+
+export interface AuthResponse {
+  status: 'ok' | 'error';
+  message?: string;
+}
+
+export interface AuthError {
+  field?: string;
+  message: string;
 } 

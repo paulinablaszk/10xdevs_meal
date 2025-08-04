@@ -16,14 +16,42 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    // TODO: Implementacja logiki logowania
-    console.log(data);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'error') {
+        setError('root', { 
+          message: result.message || 'Wystąpił błąd podczas logowania.' 
+        });
+        return;
+      }
+
+      // Sprawdź czy mamy parametr next w URL
+      const params = new URLSearchParams(window.location.search);
+      const nextUrl = params.get('next') || '/recipes';
+      
+      window.location.href = nextUrl;
+    } catch (error) {
+      console.error('Błąd logowania:', error);
+      setError('root', { 
+        message: 'Wystąpił nieoczekiwany błąd podczas logowania.' 
+      });
+    }
   };
 
   return (
@@ -35,7 +63,7 @@ export function LoginForm() {
           {...register("email")}
           className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/50"
         />
-        {errors.email && (
+        {errors.email && errors.email.message && (
           <AlertAIError className="mt-2" message={errors.email.message} />
         )}
       </div>
@@ -47,10 +75,14 @@ export function LoginForm() {
           {...register("password")}
           className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/50"
         />
-        {errors.password && (
+        {errors.password && errors.password.message && (
           <AlertAIError className="mt-2" message={errors.password.message} />
         )}
       </div>
+
+      {errors.root && errors.root.message && (
+        <AlertAIError message={errors.root.message} />
+      )}
 
       <div className="flex flex-col gap-2">
         <Button

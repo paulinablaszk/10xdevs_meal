@@ -1,10 +1,8 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import { RecipeListView } from '@/components/views/RecipeListView';
+import Layout from "../../layouts/Layout.astro";
+import { RecipeListView } from "../../components/views/RecipeListView";
 ---
 
-<Layout title="Moje przepisy">
-  <main class="container mx-auto px-4 py-8">
-    <RecipeListView client:load />
-  </main>
+<Layout title="Przepisy">
+  <RecipeListView client:load />
 </Layout> 

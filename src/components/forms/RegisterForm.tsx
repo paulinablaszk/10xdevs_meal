@@ -4,17 +4,14 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { AlertAIError } from "../AlertAIError";
+import { useState } from "react";
 
 const registerSchema = z.object({
   email: z.string().email("Nieprawidłowy adres e-mail.").max(255),
-  password: z
-    .string()
+  password: z.string()
     .min(8, "Hasło musi mieć co najmniej 8 znaków")
     .regex(/(?=.*[A-Za-z])(?=.*\d)/, "Hasło musi zawierać co najmniej jedną literę i cyfrę"),
-  confirmPassword: z.string(),
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: "Musisz zaakceptować regulamin",
-  }),
+  confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Hasła nie są takie same",
   path: ["confirmPassword"],
@@ -23,17 +20,54 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
+  const [isSuccess, setIsSuccess] = useState(false);
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    // TODO: Implementacja logiki rejestracji
-    console.log(data);
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'error') {
+        setIsSuccess(false);
+        setError('root', { 
+          message: result.message || 'Wystąpił błąd podczas rejestracji.' 
+        });
+        return;
+      }
+
+      // Wyświetl komunikat o sukcesie i przekieruj
+      setIsSuccess(true);
+      setError('root', { 
+        message: result.message || 'Rejestracja zakończona sukcesem. Przekierowuję...' 
+      });
+
+      // Przekieruj na stronę główną po udanej rejestracji
+      setTimeout(() => {
+        window.location.href = '/recipes';
+      }, 1500);
+
+    } catch (error) {
+      console.error('Błąd rejestracji:', error);
+      setIsSuccess(false);
+      setError('root', { 
+        message: 'Wystąpił nieoczekiwany błąd podczas rejestracji.' 
+      });
+    }
   };
 
   return (
@@ -45,7 +79,7 @@ export function RegisterForm() {
           {...register("email")}
           className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/50"
         />
-        {errors.email && (
+        {errors.email && errors.email.message && (
           <AlertAIError className="mt-2" message={errors.email.message} />
         )}
       </div>
@@ -57,7 +91,7 @@ export function RegisterForm() {
           {...register("password")}
           className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/50"
         />
-        {errors.password && (
+        {errors.password && errors.password.message && (
           <AlertAIError className="mt-2" message={errors.password.message} />
         )}
       </div>
@@ -69,23 +103,16 @@ export function RegisterForm() {
           {...register("confirmPassword")}
           className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/50"
         />
-        {errors.confirmPassword && (
+        {errors.confirmPassword && errors.confirmPassword.message && (
           <AlertAIError className="mt-2" message={errors.confirmPassword.message} />
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          {...register("acceptTerms")}
-          className="w-4 h-4 rounded bg-white/5 border-white/10"
+      {errors.root && errors.root.message && (
+        <AlertAIError 
+          message={errors.root.message} 
+          title={isSuccess ? 'Sukces!' : 'Błąd'} 
         />
-        <label className="text-sm text-white/90">
-          Akceptuję regulamin i politykę prywatności
-        </label>
-      </div>
-      {errors.acceptTerms && (
-        <AlertAIError message={errors.acceptTerms.message} />
       )}
 
       <div className="flex flex-col gap-2">
@@ -97,7 +124,7 @@ export function RegisterForm() {
           {isSubmitting ? "Rejestracja..." : "Zarejestruj się"}
         </Button>
         
-        <div className="text-center text-sm">
+        <div className="flex justify-center text-sm">
           <a
             href="/auth/login"
             className="text-blue-200 hover:text-blue-100"

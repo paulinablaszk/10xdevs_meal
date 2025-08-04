@@ -1,0 +1,38 @@
+---
+import "../styles/global.css";
+import { Button } from "../components/ui/button";
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Autoryzacja - 10xDevs Meal" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+    <title>Autoryzacja - 10xDevs Meal</title>
+  </head>
+  <body>
+    <div class="relative w-full mx-auto min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 p-4 sm:p-8">
+      <div class="relative max-w-[400px] mx-auto backdrop-blur-xl bg-gradient-to-b from-white/10 to-white/5 rounded-2xl shadow-2xl p-8 text-white border border-white/10">
+        <div class="flex flex-col items-center mb-8">
+          <a href="/" class="mb-6">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 text-transparent bg-clip-text drop-shadow-lg">
+              10xDevs Meal
+            </h1>
+          </a>
+          <slot name="header" />
+        </div>
+
+        <slot />
+
+        <div class="mt-8 text-center space-y-4">
+          <slot name="footer" />
+          <a href="/" class="text-blue-200 hover:text-blue-100 text-sm">
+            Powrót do strony głównej
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> 

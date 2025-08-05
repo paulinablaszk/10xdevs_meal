@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import { RecipeService } from '../../../lib/services/recipe.service';
 import { recipeListQuerySchema } from '../../../lib/validation/recipe';
-import { DEFAULT_USER_ID } from '../../../db/supabase.client';
 import { ZodError } from 'zod';
 import { PostgrestError } from '@supabase/supabase-js';
 import { OpenRouterError, AuthenticationError, RateLimitError, ModelNotSupportedError, NetworkError, InvalidSchemaError } from '../../../lib/services/openrouter.service';
@@ -14,7 +13,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const body = await request.json();
     
     // 2. Utworzenie przepisu przez serwis
-    const recipeService = new RecipeService(locals.supabase, DEFAULT_USER_ID);
+    const recipeService = new RecipeService(locals.supabase, locals.userId);
     const recipe = await recipeService.createRecipe(body);
 
     // 3. Zwrócenie odpowiedzi
@@ -101,22 +100,20 @@ export const GET: APIRoute = async ({ request, locals }) => {
     
     const validatedParams = recipeListQuerySchema.parse(params);
 
-    // Tymczasowo używamy DEFAULT_USER_ID do czasu implementacji JWT
-    const recipeService = new RecipeService(locals.supabase, DEFAULT_USER_ID);
+    const recipeService = new RecipeService(locals.supabase, locals.userId);
     const result = await recipeService.listRecipes(validatedParams);
 
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        // Dodajemy Cache-Control zgodnie z planem
         'Cache-Control': 'private, max-age=30'
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in GET /api/recipes:', error);
 
-    if (error.name === 'ZodError') {
+    if (error instanceof ZodError) {
       return new Response(
         JSON.stringify({
           error: 'Invalid query parameter',
@@ -130,7 +127,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     }
 
     // Obsługa błędów Supabase
-    if (error.code === 'PGRST301') {
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'PGRST301') {
       return new Response(
         JSON.stringify({ error: 'Rate limit exceeded' }),
         {

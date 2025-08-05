@@ -12,7 +12,8 @@ export function Navigation() {
 
   useEffect(() => {
     setPathname(window.location.pathname);
-  }, []);
+    console.log('Session in Navigation:', session);
+  }, [session]);
 
   const handleLogout = async () => {
     await supabaseClient.auth.signOut();
@@ -64,9 +65,10 @@ export function Navigation() {
           </nav>
         </div>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-4">
           {session && (
-            <p className="text-sm text-white/70">
+            <p className="text-sm font-medium text-white flex items-center gap-2">
+              <span className="hidden sm:inline">Zalogowany jako:</span>
               {session.user.email}
             </p>
           )}

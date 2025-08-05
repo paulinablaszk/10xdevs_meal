@@ -18,9 +18,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials not found. Authentication features will not work.');
 }
 
+console.log('Initializing Supabase client with URL:', supabaseUrl);
+
 export const supabaseClient = createClient<Database>(
   supabaseUrl || '',
-  supabaseAnonKey || ''
+  supabaseAnonKey || '',
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+      storage: isBrowser ? window.localStorage : undefined,
+    },
+    global: {
+      headers: {
+        'x-client-info': 'meal-planner'
+      }
+    }
+  }
 );
 
+// Tymczasowo przywracamy DEFAULT_USER_ID do czasu pełnej migracji
 export const DEFAULT_USER_ID = '77cba856-5259-4019-96c3-6044e8e993d3';

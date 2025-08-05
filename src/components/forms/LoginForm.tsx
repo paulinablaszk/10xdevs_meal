@@ -24,19 +24,37 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
+      console.log('Sending login request with:', { email: data.email });
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
+        credentials: 'include'
       });
 
       const result = await response.json();
+      console.log('Login response:', result);
+
+      if (!response.ok) {
+        setError('root', { 
+          message: result.message || 'Wystąpił błąd podczas logowania.' 
+        });
+        return;
+      }
 
       if (result.status === 'error') {
         setError('root', { 
           message: result.message || 'Wystąpił błąd podczas logowania.' 
+        });
+        return;
+      }
+
+      if (!result.session) {
+        setError('root', { 
+          message: 'Brak danych sesji w odpowiedzi.' 
         });
         return;
       }

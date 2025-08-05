@@ -28,6 +28,12 @@ Secure and personal AI-powered nutrition calculator for home recipes. MealPlanne
 - GitHub Actions (CI/CD)  
 - DigitalOcean Docker image (deployment)
 
+**Testing**  
+- Vitest (Unit & Integration Testing)
+- React Testing Library (Component Testing)
+- Playwright (E2E Testing)
+- Mock Service Worker (API Mocking)
+
 ## Getting Started Locally
 
 ### Prerequisites  

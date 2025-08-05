@@ -1,0 +1,144 @@
+
+
+# Plan Testów dla Aplikacji MealPlanner
+
+## 1. Wprowadzenie i Cele Testowania
+
+### 1.1. Wprowadzenie
+Niniejszy dokument określa kompleksowy plan testów dla aplikacji MealPlanner w wersji MVP. Celem planu jest zapewnienie najwyższej jakości produktu poprzez systematyczną weryfikację funkcjonalności, wydajności, bezpieczeństwa i użyteczności aplikacji. Plan uwzględnia specyfikę stosu technologicznego, na który składają się Astro, React, TypeScript, Supabase oraz integracja z zewnętrznym serwisem AI (OpenRouter.ai).
+
+### 1.2. Cele Testowania
+*   **Zapewnienie poprawności funkcjonalnej:** Weryfikacja, czy wszystkie kluczowe funkcjonalności, takie jak autentykacja, zarządzanie przepisami (CRUD) i obliczanie wartości odżywczych, działają zgodnie z wymaganiami.
+*   **Weryfikacja bezpieczeństwa:** Upewnienie się, że dane użytkowników są odpowiednio chronione, a dostęp do zasobów jest ograniczony zgodnie z uprawnieniami (szczególny nacisk na weryfikację polityk Row Level Security w Supabase).
+*   **Ocena dokładności modułu AI:** Sprawdzenie, czy integracja z AI spełnia kryterium sukcesu (80% skuteczności w obliczeniach wartości odżywczych) i jest odporna na błędy.
+*   **Zapewnienie stabilności i wydajności:** Identyfikacja i eliminacja potencjalnych "wąskich gardeł" oraz weryfikacja responsywności aplikacji pod obciążeniem.
+*   **Gwarancja wysokiej jakości User Experience (UX):** Sprawdzenie, czy interfejs jest intuicyjny, responsywny i wolny od błędów wizualnych na kluczowych urządzeniach i przeglądarkach.
+
+## 2. Zakres Testów
+
+### 2.1. Funkcjonalności objęte testami:
+*   Moduł autentykacji użytkownika (rejestracja, logowanie, wylogowywanie).
+*   Uproszczony cykl życia przepisu (tworzenie, odczyt).
+*   Integracja z API AI (OpenRouter.ai) w celu obliczania wartości odżywczych.
+*   Walidacja formularzy po stronie klienta i serwera.
+*   Ochrona tras wymagających uwierzytelnienia (middleware).
+
+
+### 2.2. Funkcjonalności wyłączone z testów (dla MVP):
+*   Import przepisów z zewnętrznych URL.
+*   Funkcje społecznościowe (udostępnianie przepisów).
+*   Zaawansowana obsługa multimediów (np. wgrywanie zdjęć).
+
+## 3. Typy Testów do Przeprowadzenia
+
+| Typ Testu | Opis i Cel | Narzędzia |
+| :--- | :--- | :--- |
+| **Testy Jednostkowe** | Weryfikacja pojedynczych komponentów React, hooków, funkcji pomocniczych i logiki w serwisach (`*.service.ts`). Celem jest izolacja i sprawdzenie poprawności najmniejszych części systemu. | Vitest, React Testing Library |
+| **Testy Integracyjne** | Testowanie współpracy między komponentami (np. formularz z przyciskami), a także integracji frontend-backend (mockowane API) oraz logiki po stronie API (endpointy Astro łączące się z testową bazą danych). | Vitest, React Testing Library, Supertest, MSW (Mock Service Worker) |
+| **Testy End-to-End (E2E)** | Symulacja rzeczywistych scenariuszy użycia przez użytkownika w przeglądarce. Weryfikacja kompletnych przepływów, np. od rejestracji, przez dodanie przepisu, po wylogowanie. | Playwright lub Cypress |
+| **Testy Bezpieczeństwa** | Skupione na weryfikacji mechanizmów autoryzacji i uwierzytelniania. Główny cel: sprawdzenie, czy użytkownik A nie ma dostępu do danych użytkownika B. | Testy integracyjne API, ewentualnie narzędzia do skanowania (np. OWASP ZAP) |
+| **Testy Wydajności** | (Opcjonalnie dla MVP, ale zalecane) Podstawowe testy mierzące czas ładowania stron (LCP, FCP) i responsywność API pod niewielkim obciążeniem. | Lighthouse, `k6` |
+| **Testy Benchmarkowe AI**| Specjalny rodzaj testów do mierzenia dokładności obliczeń AI. Porównanie wyników z modelem ze zbiorem danych referencyjnych. Maksymalny czas odpowiedzi: 30 sekund. | Skrypty własne (np. w Node.js) |
+| **Testy Accessibility** | Weryfikacja dostępności aplikacji zgodnie z WCAG 2.1. Sprawdzenie nawigacji klawiaturą, kontrastu kolorów i etykiet ARIA. | axe-core, Lighthouse Accessibility |
+
+## 4. Scenariusze Testowe dla Kluczowych Funkcjonalności
+
+### 4.1. Moduł Autentykacji
+*   **TC-AUTH-01:** Użytkownik może pomyślnie zarejestrować nowe konto przy użyciu unikalnego adresu e-mail i silnego hasła.
+*   **TC-AUTH-02:** System uniemożliwia rejestrację z już istniejącym adresem e-mail.
+*   **TC-AUTH-03:** Użytkownik może pomyślnie zalogować się przy użyciu poprawnych danych.
+*   **TC-AUTH-04:** System blokuje logowanie przy użyciu błędnego hasła lub nieistniejącego e-maila.
+*   **TC-AUTH-05:** Użytkownik po zalogowaniu jest przekierowywany na stronę z listą przepisów.
+*   **TC-AUTH-06:** Użytkownik może się bezpiecznie wylogować, co kończy jego sesję.
+*   **TC-AUTH-07:** Niezalogowany użytkownik, próbując wejść na stronę `/recipes`, jest przekierowywany do formularza logowania.
+
+### 4.2. Zarządzanie Przepisami
+*   **TC-RECIPE-01:** Zalogowany użytkownik może pomyślnie utworzyć nowy przepis, wypełniając wszystkie wymagane pola (nazwa, składniki, kroki).
+*   **TC-RECIPE-02:** System waliduje formularz dodawania przepisu i wyświetla błędy przy próbie zapisu z brakującymi danymi.
+*   **TC-RECIPE-03:** Nowo dodany przepis jest widoczny na liście przepisów użytkownika.
+*   **TC-RECIPE-04:** Użytkownik może otworzyć szczegóły swojego przepisu, widząc wszystkie wprowadzone dane.
+
+
+### 4.3. Integracja z AI
+*   **TC-AI-01:** Po pomyślnym dodaniu przepisu z listą składników, system poprawnie oblicza i wyświetla kaloryczność oraz makroskładniki w czasie ≤30 sekund.
+*   **TC-AI-02:** W przypadku błędu komunikacji z API OpenRouter, użytkownik widzi stosowny komunikat błędu, a aplikacja działa stabilnie.
+*   **TC-AI-03:** System poprawnie obsługuje różne jednostki w składnikach (np. "g", "ml", "szklanka", "łyżka").
+*   **TC-AI-04:** W przypadku timeout API OpenRouter (>30s), system wyświetla komunikat o błędzie i pozwala zapisać przepis bez obliczeń nutrition.
+*   **TC-AI-05:** System poprawnie obsługuje przypadki, gdy AI zwróci niepełne dane nutrition (brakujące makroskładniki).
+*   **TC-AI-06:** W przypadku długotrwałej niedostępności API OpenRouter (>5 minut), system zapisuje przepisy w trybie offline z możliwością późniejszego przeliczenia.
+
+### 4.4. Bezpieczeństwo
+*   **TC-SEC-01 (Krytyczny):** Zalogowany Użytkownik A, znając ID przepisu należącego do Użytkownika B, nie może odczytać jego danych poprzez bezpośrednie wywołanie API (`/api/recipes/[id]`).
+*   **TC-SEC-02:** Sesja użytkownika wygasa po stronie serwera (zgodnie z konfiguracją Supabase).
+
+### 4.5. Accessibility
+*   **TC-ACC-01:** Wszystkie interaktywne elementy (przyciski, linki, pola formularzy) są dostępne poprzez nawigację klawiaturą (Tab, Enter, Spacja).
+*   **TC-ACC-02:** Wszystkie obrazy mają odpowiednie atrybuty alt, pola formularzy mają właściwe etykiety (labels).
+*   **TC-ACC-03:** Kontrast kolorów spełnia standardy WCAG 2.1 AA (minimum 4.5:1 dla normalnego tekstu).
+*   **TC-ACC-04:** Screen reader poprawnie odczytuje strukturę strony i stan aplikacji (loading, errors).
+
+## 5. Środowisko Testowe
+*   **Środowisko lokalne (deweloperskie):** Uruchamiane na maszynach deweloperów (`npm run dev`). Używane do testów jednostkowych i integracyjnych z zamockowanymi zależnościami.
+*   **CI/CD Pipeline:** GitHub Actions z testową bazą danych Supabase. Wystarczające dla MVP - uruchamia testy E2E w przeglądarce headless.
+*   **Środowisko stagingowe (opcjonalne):** Tylko jeśli potrzebne do manualnych testów akceptacyjnych przez Product Ownera.
+*   **Przeglądarki:** Google Chrome (najnowsza wersja), Firefox (najnowsza wersja). Safari - tylko jeśli zespół ma dostęp do macOS.
+*   **Urządzenia:** Testy RWD na emulatorach przeglądarki dla popularnych rozdzielczości (Mobile: 390x844, Desktop: 1920x1080).
+
+## 6. Narzędzia do Testowania
+*   **Framework do testów JS:** Vitest
+*   **Biblioteka do testowania komponentów:** React Testing Library
+*   **Framework do testów E2E:** Playwright
+*   **Mockowanie API:** Mock Service Worker (MSW)
+*   **Testy Accessibility:** axe-core (zintegrowane z Playwright), Lighthouse CI
+*   **Analiza pokrycia kodu:** c8 (wbudowane w Vitest)
+*   **CI/CD:** GitHub Actions (do automatycznego uruchamiania testów po każdym pushu do repozytorium)
+*   **Zarządzanie testami i błędami:** GitHub Issues
+
+## 7. Harmonogram Testów
+Testowanie będzie procesem ciągłym, zintegrowanym z cyklem deweloperskim (CI).
+*   **Testy jednostkowe i integracyjne:** Pisane na bieżąco przez deweloperów wraz z nowymi funkcjonalnościami.
+*   **Testy E2E:** Rozwijane równolegle do głównych przepływów aplikacji. Pełna regresja E2E uruchamiana przed każdym wdrożeniem na produkcję.
+*   **Testy manualne (eksploracyjne):** Przeprowadzane na środowisku stagingowym po zakończeniu implementacji większych funkcjonalności (np. cały moduł przepisów).
+
+## 8. Kryteria Akceptacji Testów
+
+### 8.1. Kryteria wejścia (rozpoczęcia testów)
+*   Kod został zintegrowany i wdrożony na środowisku testowym.
+*   Wszystkie testy jednostkowe i integracyjne przechodzą pomyślnie.
+*   Dostępna jest dokumentacja dla testowanych funkcjonalności.
+
+### 8.2. Kryteria wyjścia (zakończenia testów i zgody na wdrożenie)
+*   **100%** testów jednostkowych i integracyjnych dla nowej funkcjonalności przechodzi pomyślnie.
+*   **75%** pokrycia kodu testami jednostkowymi dla logiki biznesowej (serwisy, walidacja). Dla MVP to realistyczny próg.
+*   **100%** krytycznych scenariuszy testowych E2E przechodzi pomyślnie.
+*   **100%** testów accessibility dla kluczowych przepływów (rejestracja, logowanie, dodawanie przepisu).
+*   Brak otwartych błędów o priorytecie krytycznym (Blocker) lub wysokim (Critical).
+*   Wszystkie zidentyfikowane problemy z bezpieczeństwem zostały rozwiązane.
+*   Testy regresji przechodzą pomyślnie po aktualizacji dependencies (Astro, React, Supabase).
+
+## 9. Role i Odpowiedzialności w Procesie Testowania
+*   **Deweloperzy:**
+    *   Odpowiedzialni za pisanie testów jednostkowych i integracyjnych dla swojego kodu.
+    *   Naprawianie błędów znalezionych na wszystkich etapach testowania.
+    *   Utrzymywanie progu pokrycia kodu testami.
+*   **Inżynier QA (Automatyzujący):**
+    *   Projektowanie i implementacja testów E2E.
+    *   Tworzenie i utrzymanie planu testów.
+    *   Konfiguracja i utrzymanie środowisk testowych oraz pipeline'ów CI dla testów.
+    *   Przeprowadzanie testów eksploracyjnych i manualnych w celu znalezienia błędów niewykrytych przez automaty.
+    *   Analiza i raportowanie wyników testów.
+*   **Product Owner / Manager:**
+    *   Dostarczanie kryteriów akceptacyjnych dla nowych funkcjonalności.
+    *   Priorytetyzacja naprawy błędów.
+    *   Ostateczna akceptacja funkcjonalności przed wdrożeniem.
+
+## 10. Procedury Raportowania Błędów
+
+Każdy znaleziony błąd musi zostać zaraportowany w systemie do śledzenia zadań (np. GitHub Issues) i powinien zawierać następujące informacje:
+*   **Tytuł:** Zwięzły i jednoznaczny opis problemu.
+*   **Środowisko:** Gdzie błąd wystąpił (np. `staging`, `local`, przeglądarka, system operacyjny).
+*   **Kroki do odtworzenia:** Szczegółowa, ponumerowana lista kroków potrzebnych do wywołania błędu.
+*   **Wynik oczekiwany:** Co powinno się stać.
+*   **Wynik aktualny:** Co się stało w rzeczywistości.
+*   **Dowody:** Zrzuty ekranu, nagrania wideo, logi z konsoli.
+*   **Priorytet/Waga:** Określenie wpływu błędu na działanie aplikacji (np. Krytyczny, Wysoki, Średni, Niski).

@@ -19,6 +19,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 console.log('Initializing Supabase client with URL:', supabaseUrl);
+console.log('Environment:', {
+  isBrowser,
+  windowEnv: isBrowser ? (window as any).__env : undefined,
+  importEnv: {
+    SUPABASE_URL: import.meta.env.SUPABASE_URL,
+    SUPABASE_KEY: import.meta.env.SUPABASE_KEY
+  }
+});
 
 export const supabaseClient = createClient<Database>(
   supabaseUrl || '',

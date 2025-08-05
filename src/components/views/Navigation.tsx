@@ -6,13 +6,16 @@ import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
-export function Navigation() {
+interface NavigationProps {
+  userEmail?: string;
+}
+
+export function Navigation({ userEmail }: NavigationProps) {
   const { session } = useAuth();
   const [pathname, setPathname] = useState('');
 
   useEffect(() => {
     setPathname(window.location.pathname);
-    console.log('Session in Navigation:', session);
   }, [session]);
 
   const handleLogout = async () => {
@@ -78,10 +81,10 @@ export function Navigation() {
         </div>
 
         <div className="ml-auto flex items-center gap-4">
-          {session && (
+          {userEmail && (
             <p className="text-sm font-medium text-white flex items-center gap-2">
-              <span className="hidden sm:inline">Zalogowany jako:</span>
-              {session.user.email}
+              <span>Zalogowany jako:</span>
+              {userEmail}
             </p>
           )}
         </div>

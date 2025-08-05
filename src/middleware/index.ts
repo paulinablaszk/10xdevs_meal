@@ -31,6 +31,21 @@ export const onRequest = defineMiddleware(async ({ locals, request, redirect, co
 
       if (!error) {
         session = data.session;
+        // Aktualizuj ciasteczka dla klienta
+        if (session) {
+          cookies.set('sb-access-token', session.access_token, {
+            path: '/',
+            httpOnly: false, // Musi być false aby klient miał dostęp
+            secure: true,
+            sameSite: 'strict'
+          });
+          cookies.set('sb-refresh-token', session.refresh_token, {
+            path: '/',
+            httpOnly: false, // Musi być false aby klient miał dostęp
+            secure: true,
+            sameSite: 'strict'
+          });
+        }
       }
     }
 

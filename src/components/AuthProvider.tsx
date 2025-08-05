@@ -35,20 +35,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Pobierz aktualną sesję
-    supabaseClient.auth.getSession()
-      .then(({ data: { session } }) => {
+    // Pobierz tokeny z ciasteczek
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+
+    const accessToken = getCookie('sb-access-token');
+    const refreshToken = getCookie('sb-refresh-token');
+
+    // Jeśli mamy tokeny, ustaw sesję
+    if (accessToken && refreshToken) {
+      supabaseClient.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      }).then(({ data: { session } }) => {
+        console.log('Setting session from cookies:', session);
         updateState(session);
-      })
-      .catch((error) => {
-        console.error('Błąd podczas pobierania sesji:', error);
-        updateState(null);
       });
+    } else {
+      // Jeśli nie ma tokenów, spróbuj pobrać sesję standardowo
+      supabaseClient.auth.getSession()
+        .then(({ data: { session } }) => {
+          console.log('AuthProvider - getSession response:', session);
+          updateState(session);
+        })
+        .catch((error) => {
+          console.error('Błąd podczas pobierania sesji:', error);
+          updateState(null);
+        });
+    }
 
     // Nasłuchuj zmian sesji
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      console.log('AuthProvider - onAuthStateChange:', _event, session);
       updateState(session);
     });
 

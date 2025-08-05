@@ -1,7 +1,7 @@
 import { DrawerMenu } from './DrawerMenu';
 import { useAuth } from '../AuthProvider';
 import { supabaseClient } from '../../db/supabase.client';
-import { Menu } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
@@ -71,21 +71,24 @@ export function Navigation({ userEmail }: NavigationProps) {
             >
               Dodaj przepis
             </a>
-            <button
-              onClick={handleLogout}
-              className="transition-colors hover:text-white text-white/70 duration-200"
-            >
-              Wyloguj
-            </button>
           </nav>
         </div>
 
         <div className="ml-auto flex items-center gap-4">
           {userEmail && (
-            <p className="text-sm font-medium text-white flex items-center gap-2">
-              <span>Zalogowany jako:</span>
-              {userEmail}
-            </p>
+            <>
+              <p className="text-sm font-medium text-white flex items-center gap-2">
+                <span>Zalogowany jako:</span>
+                {userEmail}
+              </p>
+              <button
+                onClick={handleLogout}
+                className="transition-colors hover:text-white text-white/70 duration-200 p-2 rounded-full hover:bg-white/10"
+                title="Wyloguj"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </>
           )}
         </div>
       </div>

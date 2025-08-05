@@ -16,8 +16,20 @@ export function Navigation() {
   }, [session]);
 
   const handleLogout = async () => {
-    await supabaseClient.auth.signOut();
-    window.location.href = '/auth/login';
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Błąd podczas wylogowywania');
+      }
+
+      window.location.href = '/auth/login';
+    } catch (error) {
+      console.error('Błąd podczas wylogowywania:', error);
+    }
   };
 
   const isActive = (path: string) => {

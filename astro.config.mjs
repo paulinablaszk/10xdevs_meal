@@ -13,6 +13,10 @@ export default defineConfig({
   server: { port: 3000 },
   vite: {
     plugins: [tailwindcss()],
+    define: {
+      'import.meta.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
+      'import.meta.env.SUPABASE_KEY': JSON.stringify(process.env.SUPABASE_KEY),
+    }
   },
   adapter: node({
     mode: "standalone",

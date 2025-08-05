@@ -17,27 +17,49 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<AuthContextType>({
+    session: null,
+    loading: true
+  });
 
   useEffect(() => {
+    let mounted = true;
+
+    // Funkcja do aktualizacji stanu, która sprawdza czy komponent jest nadal zamontowany
+    const updateState = (session: Session | null) => {
+      if (mounted) {
+        setState({
+          session,
+          loading: false
+        });
+      }
+    };
+
     // Pobierz aktualną sesję
-    supabaseClient.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    supabaseClient.auth.getSession()
+      .then(({ data: { session } }) => {
+        updateState(session);
+      })
+      .catch((error) => {
+        console.error('Błąd podczas pobierania sesji:', error);
+        updateState(null);
+      });
 
     // Nasłuchuj zmian sesji
-    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
+    const {
+      data: { subscription },
+    } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      updateState(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, loading }}>
+    <AuthContext.Provider value={state}>
       {children}
     </AuthContext.Provider>
   );

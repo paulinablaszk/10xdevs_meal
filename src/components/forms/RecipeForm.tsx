@@ -13,6 +13,10 @@ import { toast } from "sonner";
 import { FullScreenSpinner } from "@/components/ui/full-screen-spinner";
 import { AlertAIError } from "@/components/AlertAIError";
 import { useState } from "react";
+import { Constants } from "@/db/database.types";
+
+// Konwertujemy readonly array na mutable array dla Zod
+const unitTypes = [...Constants.public.Enums.unit_type] as [UnitType, ...UnitType[]];
 
 const recipeFormSchema = z.object({
   name: z.string().min(3, "Nazwa musi mieć co najmniej 3 znaki"),
@@ -22,7 +26,7 @@ const recipeFormSchema = z.object({
       (val) => !isNaN(Number(val)) && Number(val) > 0,
       "Ilość musi być liczbą większą od 0"
     ),
-    unit: z.enum(["g", "ml", "sztuka", "łyżka", "szklanka", "dag", "kg", "l", "łyżeczka", "pęczek", "garść", "plaster", "szczypta", "ząbek"] as [UnitType, ...UnitType[]])
+    unit: z.enum(unitTypes)
   })).min(1, "Przepis musi zawierać co najmniej jeden składnik"),
   steps: z.string().min(1, "Kroki przygotowania są wymagane")
 });
@@ -33,6 +37,8 @@ export function RecipeForm() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   
+  console.log('RecipeForm: Inicjalizacja formularza');
+  
   const {
     register,
     control,
@@ -42,7 +48,7 @@ export function RecipeForm() {
     resolver: zodResolver(recipeFormSchema),
     defaultValues: {
       name: "",
-      ingredients: [{ name: "", amount: "", unit: "g" }],
+      ingredients: [{ name: "", amount: "", unit: unitTypes[0] }],
       steps: ""
     }
   });
@@ -50,6 +56,11 @@ export function RecipeForm() {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "ingredients"
+  });
+
+  console.log('RecipeForm: Stan pól:', {
+    fields,
+    errors
   });
 
   const onSubmit: SubmitHandler<FormData> = async (formData) => {
@@ -151,7 +162,14 @@ export function RecipeForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => append({ name: "", amount: "", unit: "g" })}
+              onClick={() => {
+                console.log('RecipeForm: Dodawanie nowego składnika');
+                append({ 
+                  name: "", 
+                  amount: "", 
+                  unit: unitTypes[0]
+                });
+              }}
               className="mt-2 bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700 w-auto flex items-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>

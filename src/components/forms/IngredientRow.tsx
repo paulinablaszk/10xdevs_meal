@@ -5,6 +5,7 @@ import type { IngredientViewModel } from "./types";
 import { Controller, type FieldErrors, type UseFormRegister, type Control } from "react-hook-form";
 import { Trash2 } from "lucide-react";
 import type { FormData } from "./RecipeForm";
+import { cn } from "@/lib/utils";
 
 interface IngredientRowProps {
   index: number;
@@ -24,15 +25,18 @@ export function IngredientRow({
   canDelete
 }: IngredientRowProps) {
   return (
-    <div className="flex gap-4 items-start mb-4">
-      <div className="flex-1">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="flex-[2]">
         <Input
           {...register(`ingredients.${index}.name`)}
           placeholder="Nazwa składnika"
-          className={errors?.name ? "border-red-500" : ""}
+          className={cn(
+            errors?.name ? "border-red-500" : "",
+            "w-full"
+          )}
         />
         {errors?.name && (
-          <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          <p className="text-red-500 text-sm mt-1 absolute">{errors.name.message}</p>
         )}
       </div>
 
@@ -43,10 +47,13 @@ export function IngredientRow({
           type="number"
           min="0"
           step="0.1"
-          className={errors?.amount ? "border-red-500" : ""}
+          className={cn(
+            errors?.amount ? "border-red-500" : "",
+            "w-full"
+          )}
         />
         {errors?.amount && (
-          <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>
+          <p className="text-red-500 text-sm mt-1 absolute">{errors.amount.message}</p>
         )}
       </div>
 
@@ -54,15 +61,22 @@ export function IngredientRow({
         <Controller
           control={control}
           name={`ingredients.${index}.unit`}
-          render={({ field }) => (
-            <UnitSelect
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
+          render={({ field }) => {
+            console.log('IngredientRow Controller render:', {
+              fieldValue: field.value,
+              fieldName: field.name,
+              index
+            });
+            return (
+              <UnitSelect
+                value={field.value}
+                onChange={field.onChange}
+              />
+            );
+          }}
         />
         {errors?.unit && (
-          <p className="text-red-500 text-sm mt-1">{errors.unit.message}</p>
+          <p className="text-red-500 text-sm mt-1 absolute">{errors.unit.message}</p>
         )}
       </div>
 
@@ -72,7 +86,6 @@ export function IngredientRow({
           variant="ghost"
           size="icon"
           onClick={() => onRemove(index)}
-          className="mt-1"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

@@ -217,4 +217,28 @@ describe('RecipeService', () => {
       expect(deleteSpy).toHaveBeenCalled();
     });
   });
+
+  describe('createRecipe validation', () => {
+    const baseMockRecipe: RecipeCreateCommand = {
+      name: 'New Recipe',
+      description: 'Test Description',
+      ingredients: [{ name: 'ingredient1', amount: 100, unit: 'g' }],
+      steps: ['step1']
+    };
+
+    it('should throw validation error if name is missing', async () => {
+      const mockRecipe = { ...baseMockRecipe, name: '' };
+      await expect(service.createRecipe(mockRecipe)).rejects.toThrow();
+    });
+
+    it('should throw validation error if ingredients are missing', async () => {
+      const mockRecipe = { ...baseMockRecipe, ingredients: [] };
+      await expect(service.createRecipe(mockRecipe)).rejects.toThrow();
+    });
+
+    it('should throw validation error if steps are missing', async () => {
+      const mockRecipe = { ...baseMockRecipe, steps: [] };
+      await expect(service.createRecipe(mockRecipe)).rejects.toThrow();
+    });
+  });
 }); 

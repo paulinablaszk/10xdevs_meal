@@ -16,13 +16,6 @@ interface UnitSelectProps {
 export function UnitSelect({ value, onChange }: UnitSelectProps) {
   const units = [...Constants.public.Enums.unit_type] as [UnitType, ...UnitType[]];
   
-  console.log('UnitSelect render:', {
-    receivedValue: value,
-    availableUnits: units,
-    isValueInUnits: units.includes(value),
-    valueType: typeof value
-  });
-
   if (!units.includes(value)) {
     console.warn('UnitSelect: Otrzymana wartość nie znajduje się na liście dostępnych jednostek!');
   }
@@ -31,11 +24,6 @@ export function UnitSelect({ value, onChange }: UnitSelectProps) {
     <Select 
       value={value} 
       onValueChange={(val) => {
-        console.log('UnitSelect onChange:', { 
-          oldValue: value,
-          newValue: val,
-          isNewValueInUnits: units.includes(val as UnitType)
-        });
         onChange(val as UnitType);
       }}
     >

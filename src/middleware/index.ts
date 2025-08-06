@@ -74,14 +74,7 @@ export const onRequest = defineMiddleware(async ({ locals, request, redirect, co
     
     const isProtectedPath = !isAuthPath && !isPublicApiPath && (url.pathname.startsWith('/recipes') || isApiPath);
 
-    console.log('Auth check:', {
-      path: url.pathname,
-      isAuthPath,
-      isApiPath,
-      isPublicApiPath,
-      isProtectedPath,
-      hasSession: !!session
-    });
+
 
     // Jeśli ścieżka jest chroniona i nie ma sesji, przekieruj na logowanie
     if (isProtectedPath && !session) {

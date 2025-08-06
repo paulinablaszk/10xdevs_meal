@@ -24,8 +24,6 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      console.log('Sending login request with:', { email: data.email });
-      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -36,7 +34,6 @@ export function LoginForm() {
       });
 
       const result = await response.json();
-      console.log('Login response:', result);
 
       if (!response.ok) {
         setError('root', { 

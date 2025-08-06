@@ -64,11 +64,6 @@ export function IngredientRow({
           control={control}
           name={`ingredients.${index}.unit`}
           render={({ field }) => {
-            console.log('IngredientRow Controller render:', {
-              fieldValue: field.value,
-              fieldName: field.name,
-              index
-            });
             return (
               <UnitSelect
                 value={field.value}

@@ -37,8 +37,6 @@ export function RecipeForm() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   
-  console.log('RecipeForm: Inicjalizacja formularza');
-  
   const {
     register,
     control,
@@ -58,10 +56,6 @@ export function RecipeForm() {
     name: "ingredients"
   });
 
-  console.log('RecipeForm: Stan pól:', {
-    fields,
-    errors
-  });
 
   const onSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -164,7 +158,6 @@ export function RecipeForm() {
               type="button"
               variant="outline"
               onClick={() => {
-                console.log('RecipeForm: Dodawanie nowego składnika');
                 append({ 
                   name: "", 
                   amount: "", 

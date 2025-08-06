@@ -18,15 +18,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials not found. Authentication features will not work.');
 }
 
-console.log('Initializing Supabase client with URL:', supabaseUrl);
-console.log('Environment:', {
-  isBrowser,
-  windowEnv: isBrowser ? (window as any).__env : undefined,
-  importEnv: {
-    SUPABASE_URL: import.meta.env.SUPABASE_URL,
-    SUPABASE_PUBLIC_KEY: import.meta.env.SUPABASE_PUBLIC_KEY
-  }
-});
+
 
 export const supabaseClient = createClient<Database>(
   supabaseUrl || '',

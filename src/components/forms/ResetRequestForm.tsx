@@ -22,7 +22,6 @@ export function ResetRequestForm() {
 
   const onSubmit = async (data: ResetRequestFormData) => {
     // TODO: Implementacja logiki wysyłania linku resetującego
-    console.log(data);
   };
 
   return (

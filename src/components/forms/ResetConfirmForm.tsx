@@ -29,7 +29,6 @@ export function ResetConfirmForm() {
 
   const onSubmit = async (data: ResetConfirmFormData) => {
     // TODO: Implementacja logiki zmiany hasła
-    console.log(data);
   };
 
   return (

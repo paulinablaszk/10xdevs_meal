@@ -52,14 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         access_token: accessToken,
         refresh_token: refreshToken
       }).then(({ data: { session } }) => {
-        console.log('Setting session from cookies:', session);
         updateState(session);
       });
     } else {
       // Jeśli nie ma tokenów, spróbuj pobrać sesję standardowo
       supabaseClient.auth.getSession()
         .then(({ data: { session } }) => {
-          console.log('AuthProvider - getSession response:', session);
           updateState(session);
         })
         .catch((error) => {
@@ -72,7 +70,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((_event, session) => {
-      console.log('AuthProvider - onAuthStateChange:', _event, session);
       updateState(session);
     });
 

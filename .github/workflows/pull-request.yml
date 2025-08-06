@@ -44,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npm run test:coverage
+        run: npm run test:unit
 
   status-comment:
     name: Status Comment

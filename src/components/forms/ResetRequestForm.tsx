@@ -20,8 +20,10 @@ export function ResetRequestForm() {
     resolver: zodResolver(resetRequestSchema),
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onSubmit = async (data: ResetRequestFormData) => {
     // TODO: Implementacja logiki wysyłania linku resetującego
+    // data jest obecnie nieużywana, ale będzie potrzebna po implementacji logiki
   };
 
   return (
@@ -33,9 +35,7 @@ export function ResetRequestForm() {
           {...register("email")}
           className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/50"
         />
-        {errors.email && (
-          <AlertAIError className="mt-2" message={errors.email.message} />
-        )}
+        {errors.email && <AlertAIError className="mt-2" message={errors.email.message} />}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -46,16 +46,13 @@ export function ResetRequestForm() {
         >
           {isSubmitting ? "Wysyłanie..." : "Wyślij link resetujący"}
         </Button>
-        
+
         <div className="text-center text-sm">
-          <a
-            href="/auth/login"
-            className="text-blue-200 hover:text-blue-100"
-          >
+          <a href="/auth/login" className="text-blue-200 hover:text-blue-100">
             Powrót do logowania
           </a>
         </div>
       </div>
     </form>
   );
-} 
+}

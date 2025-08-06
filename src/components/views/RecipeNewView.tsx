@@ -1,4 +1,4 @@
-import { RecipeForm } from '@/components/forms/RecipeForm';
+import { RecipeForm } from "@/components/forms/RecipeForm";
 
 export default function RecipeNewView() {
   return (
@@ -7,4 +7,4 @@ export default function RecipeNewView() {
       <RecipeForm />
     </main>
   );
-} 
+}

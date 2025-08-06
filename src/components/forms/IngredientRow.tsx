@@ -22,7 +22,7 @@ export function IngredientRow({
   control,
   errors,
   onRemove,
-  canDelete
+  canDelete,
 }: IngredientRowProps) {
   return (
     <div className="flex items-center gap-3 mb-4" data-testid="ingredient-row">
@@ -30,10 +30,7 @@ export function IngredientRow({
         <Input
           {...register(`ingredients.${index}.name`)}
           placeholder="Nazwa składnika"
-          className={cn(
-            errors?.name ? "border-red-500" : "",
-            "w-full"
-          )}
+          className={cn(errors?.name ? "border-red-500" : "", "w-full")}
           data-testid="ingredient-name"
         />
         {errors?.name && (
@@ -48,10 +45,7 @@ export function IngredientRow({
           type="number"
           min="0"
           step="0.1"
-          className={cn(
-            errors?.amount ? "border-red-500" : "",
-            "w-full"
-          )}
+          className={cn(errors?.amount ? "border-red-500" : "", "w-full")}
           data-testid="ingredient-amount"
         />
         {errors?.amount && (
@@ -91,4 +85,4 @@ export function IngredientRow({
       )}
     </div>
   );
-} 
+}

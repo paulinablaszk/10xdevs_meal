@@ -4,13 +4,13 @@
 
 ### 1.1. Przegląd widoków i nawigacji
 
-| Ścieżka                 | Layout                | Przeznaczenie                                                |
-|-------------------------|-----------------------|--------------------------------------------------------------|
-| `/auth/login`           | `AuthLayout.astro`    | Logowanie użytkownika                                        |
-| `/auth/register`        | `AuthLayout.astro`    | Rejestracja użytkownika                                      |
-| `/auth/reset-request`   | `AuthLayout.astro`    | Formularz żądania resetu hasła (podanie e-maila)             |
-| `/auth/reset-confirm`   | `AuthLayout.astro`    | Formularz ustawienia nowego hasła z linku resetującego       |
-| `* (pozostałe)`         | `Layout.astro`        | Główna aplikacja (wymaga sesji ‑ patrz middleware)           |
+| Ścieżka               | Layout             | Przeznaczenie                                          |
+| --------------------- | ------------------ | ------------------------------------------------------ |
+| `/auth/login`         | `AuthLayout.astro` | Logowanie użytkownika                                  |
+| `/auth/register`      | `AuthLayout.astro` | Rejestracja użytkownika                                |
+| `/auth/reset-request` | `AuthLayout.astro` | Formularz żądania resetu hasła (podanie e-maila)       |
+| `/auth/reset-confirm` | `AuthLayout.astro` | Formularz ustawienia nowego hasła z linku resetującego |
+| `* (pozostałe)`       | `Layout.astro`     | Główna aplikacja (wymaga sesji ‑ patrz middleware)     |
 
 - **`AuthLayout.astro`** – minimalistyczny layout bez menu aplikacji, wspólny nagłówek z logo, opcjonalne odnośniki do pozostałych stron auth i powrót do `index.astro`.
 - Widoki auth **nie ładują** ciężkich zależności aplikacji (brak Supabase queries do danych biznesowych).
@@ -18,13 +18,13 @@
 
 ### 1.2. Komponenty React (client-side)
 
-| Plik                                 | Odpowiedzialność                                           |
-|--------------------------------------|------------------------------------------------------------|
-| `src/components/forms/LoginForm.tsx` | 1. Pólka email + hasło<br/>2. Walidacja klienta<br/>3. Wywołanie `/api/auth/login` |
-| `src/components/forms/RegisterForm.tsx` | Email, hasło, potwierdzenie hasła, zgody RODO<br/>Walidacja + `/api/auth/register` |
-| `src/components/forms/ResetRequestForm.tsx` | Email; wysyłka linku resetującego (`/api/auth/reset-request`) |
-| `src/components/forms/ResetConfirmForm.tsx` | Hasło + potwierdzenie; token z query; `/api/auth/reset-confirm` |
-| `src/components/AlertAIError.tsx` (reuse) | Wyświetlanie komunikatów błędów/ sukcesu dla akcji auth      |
+| Plik                                        | Odpowiedzialność                                                                   |
+| ------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `src/components/forms/LoginForm.tsx`        | 1. Pólka email + hasło<br/>2. Walidacja klienta<br/>3. Wywołanie `/api/auth/login` |
+| `src/components/forms/RegisterForm.tsx`     | Email, hasło, potwierdzenie hasła, zgody RODO<br/>Walidacja + `/api/auth/register` |
+| `src/components/forms/ResetRequestForm.tsx` | Email; wysyłka linku resetującego (`/api/auth/reset-request`)                      |
+| `src/components/forms/ResetConfirmForm.tsx` | Hasło + potwierdzenie; token z query; `/api/auth/reset-confirm`                    |
+| `src/components/AlertAIError.tsx` (reuse)   | Wyświetlanie komunikatów błędów/ sukcesu dla akcji auth                            |
 
 - Wszystkie formularze używają **`react-hook-form`**+`zod` resolvera (spójność z istniejącą walidacją receptury).
 - Komponenty komunikują się z backendem poprzez **`fetch`** (POST) i reagują na statusy: `200 OK`, `400 ValidationError`, `401 InvalidCredentials`, `409 UserExists`.
@@ -32,11 +32,11 @@
 
 ### 1.3. Walidacja i komunikaty
 
-| Pole            | Reguły                                     | Błąd – komunikat                            |
-|-----------------|--------------------------------------------|---------------------------------------------|
-| Email           | RFC 5322, max 255 znaków                   | „Nieprawidłowy adres e-mail.”               |
-| Hasło           | ≥ 8 znaków, 1 litera, 1 cyfra              | „Hasło zbyt słabe.”                         |
-| Potwierdź hasło | identyczne z **Hasło**                     | „Hasła nie są takie same.”                  |
+| Pole            | Reguły                        | Błąd – komunikat              |
+| --------------- | ----------------------------- | ----------------------------- |
+| Email           | RFC 5322, max 255 znaków      | „Nieprawidłowy adres e-mail.” |
+| Hasło           | ≥ 8 znaków, 1 litera, 1 cyfra | „Hasło zbyt słabe.”           |
+| Potwierdź hasło | identyczne z **Hasło**        | „Hasła nie są takie same.”    |
 
 Błędy serwera mapują się na toast/bannery (Shadcn/ui `alert.tsx`).
 
@@ -69,13 +69,13 @@ src/pages/api/auth/
 
 ### 2.2. Warstwa usług (`src/lib/services/auth.service.ts`)
 
-| Metoda                       | Opis                                                                |
-|------------------------------|---------------------------------------------------------------------|
-| `register(email, password)`  | Wywołuje `supabase.auth.signUp`                                      |
-| `login(email, password)`     | `supabase.auth.signInWithPassword`                                   |
-| `logout()`                   | `supabase.auth.signOut`                                              |
-| `requestReset(email)`        | `supabase.auth.resetPasswordForEmail`                                |
-| `confirmReset(token, pass)`  | `supabase.auth.updateUser({ password: pass })` po weryfikacji tokena |
+| Metoda                      | Opis                                                                 |
+| --------------------------- | -------------------------------------------------------------------- |
+| `register(email, password)` | Wywołuje `supabase.auth.signUp`                                      |
+| `login(email, password)`    | `supabase.auth.signInWithPassword`                                   |
+| `logout()`                  | `supabase.auth.signOut`                                              |
+| `requestReset(email)`       | `supabase.auth.resetPasswordForEmail`                                |
+| `confirmReset(token, pass)` | `supabase.auth.updateUser({ password: pass })` po weryfikacji tokena |
 
 - Serwis enkapsuluje komunikację z Supabase SDK, dzięki czemu endpoint jest cienki.
 
@@ -84,14 +84,19 @@ src/pages/api/auth/
 Nowy plik `src/lib/validation/auth.ts` zawiera schematy `zod`:
 
 ```ts
-export const RegisterSchema = z.object({
-  email: z.string().email().max(255),
-  password: z.string().min(8).regex(/(?=.*[A-Za-z])(?=.*\d)/),
-  confirmPassword: z.string(),
-}).refine((d) => d.password === d.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const RegisterSchema = z
+  .object({
+    email: z.string().email().max(255),
+    password: z
+      .string()
+      .min(8)
+      .regex(/(?=.*[A-Za-z])(?=.*\d)/),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 // LoginSchema, ResetRequestSchema, ResetConfirmSchema …
 ```
 
@@ -150,7 +155,7 @@ supabase.public.profiles
 ```ts
 // DTOs (src/types.ts)
 export interface AuthResponse {
-  status: 'ok' | 'error';
+  status: "ok" | "error";
   message?: string;
 }
 
@@ -172,4 +177,4 @@ export interface AuthError {
 2. Implementacja formularzy wraz z walidacją.
 3. Dodanie endpointów API i serwisu.
 4. Aktualizacja middleware i Header.
-5. Testy E2E scenariuszy auth (Playwright / Cypress). 
+5. Testy E2E scenariuszy auth (Playwright / Cypress).

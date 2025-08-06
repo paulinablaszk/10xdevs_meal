@@ -10,28 +10,26 @@ interface NutritionTableProps {
   isManualOverride: boolean;
 }
 
-export function NutritionTable({ 
-  kcal, 
-  proteinG, 
-  fatG, 
-  carbsG, 
-  isManualOverride 
+export function NutritionTable({
+  kcal,
+  proteinG,
+  fatG,
+  carbsG,
+  isManualOverride,
 }: NutritionTableProps) {
   // Walidacja wartości >= 0
   const values = {
     kcal: Math.max(0, kcal),
     proteinG: Math.max(0, proteinG),
     fatG: Math.max(0, fatG),
-    carbsG: Math.max(0, carbsG)
+    carbsG: Math.max(0, carbsG),
   };
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Wartości odżywcze</CardTitle>
-        {isManualOverride && (
-          <Badge variant="secondary">Ręczna korekta</Badge>
-        )}
+        {isManualOverride && <Badge variant="secondary">Ręczna korekta</Badge>}
       </CardHeader>
       <CardContent>
         <Table>
@@ -57,4 +55,4 @@ export function NutritionTable({
       </CardContent>
     </Card>
   );
-} 
+}

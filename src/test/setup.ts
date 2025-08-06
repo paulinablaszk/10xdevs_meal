@@ -1,8 +1,35 @@
 // This file is used to set up the test environment for Vitest.
 // You can use this file to import global styles, set up mocks, etc.
 
-import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import "@testing-library/jest-dom";
+import { vi } from "vitest";
+import type { Database } from "@/db/database.types";
+
+type RecipeRow = Database["public"]["Tables"]["recipes"]["Row"];
+interface SupabaseResponse {
+  data: RecipeRow[];
+  count: number;
+  error: null | {
+    message: string;
+    code: string;
+  };
+}
+
+const mockRecipeData: RecipeRow = {
+  id: "1",
+  name: "Test Recipe",
+  description: "Test Description",
+  ingredients: [{ name: "ingredient1", amount: 100, unit: "g" }],
+  steps: ["step1"],
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  user_id: "test-user",
+  kcal: 100,
+  protein_g: 10,
+  fat_g: 5,
+  carbs_g: 15,
+  is_manual_override: false,
+};
 
 const mockQueryBuilder = {
   select: vi.fn().mockReturnThis(),
@@ -14,31 +41,17 @@ const mockQueryBuilder = {
   contains: vi.fn().mockReturnThis(),
   order: vi.fn().mockReturnThis(),
   range: vi.fn().mockReturnThis(),
-  single: vi.fn().mockResolvedValue({ data: {}, error: null }),
-  then(onFulfilled: (value: { data: any[]; count: number; error: any }) => void) {
+  single: vi.fn().mockResolvedValue({ data: mockRecipeData, error: null }),
+  then(onFulfilled: (value: SupabaseResponse) => void) {
     onFulfilled({
-      data: [
-        {
-          id: '1',
-          name: 'Test Recipe',
-          description: 'Test Description',
-          ingredients: [{ name: 'ingredient1', amount: 100, unit: 'g' }],
-          steps: ['step1'],
-          created_at: new Date().toISOString(),
-          user_id: 'test-user',
-          kcal: 100,
-          protein_g: 10,
-          fat_g: 5,
-          carbs_g: 15,
-        },
-      ],
+      data: [mockRecipeData],
       count: 1,
       error: null,
     });
   },
 };
 
-vi.mock('@/db/supabase.client', () => ({
+vi.mock("@/db/supabase.client", () => ({
   supabaseClient: {
     from: vi.fn(() => mockQueryBuilder),
     auth: {
@@ -49,7 +62,7 @@ vi.mock('@/db/supabase.client', () => ({
   },
 }));
 
-vi.mock('@/lib/services/openrouter.service', () => ({
+vi.mock("@/lib/services/openrouter.service", () => ({
   openRouter: {
     sendChat: vi.fn().mockResolvedValue({
       content: JSON.stringify({
@@ -60,4 +73,4 @@ vi.mock('@/lib/services/openrouter.service', () => ({
       }),
     }),
   },
-})); 
+}));

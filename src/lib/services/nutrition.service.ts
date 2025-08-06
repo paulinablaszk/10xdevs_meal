@@ -1,7 +1,7 @@
-import type { IngredientDTO } from '@/types';
-import { openRouter } from './openrouter.service';
-import type { JSONSchemaSpec } from '@/types';
-import { supabaseClient } from '@/db/supabase.client';
+import type { IngredientDTO } from "@/types";
+import { openRouter } from "./openrouter.service";
+import type { JSONSchemaSpec } from "@/types";
+import { supabaseClient } from "@/db/supabase.client";
 
 interface NutritionValues {
   kcal: number;
@@ -11,29 +11,30 @@ interface NutritionValues {
 }
 
 const NUTRITION_SCHEMA: JSONSchemaSpec = {
-  type: 'json_schema',
+  type: "json_schema",
   json_schema: {
-    name: 'nutrition_values',
+    name: "nutrition_values",
     strict: true,
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        kcal: { type: 'number', minimum: 0 },
-        protein_g: { type: 'number', minimum: 0 },
-        fat_g: { type: 'number', minimum: 0 },
-        carbs_g: { type: 'number', minimum: 0 }
+        kcal: { type: "number", minimum: 0 },
+        protein_g: { type: "number", minimum: 0 },
+        fat_g: { type: "number", minimum: 0 },
+        carbs_g: { type: "number", minimum: 0 },
       },
-      required: ['kcal', 'protein_g', 'fat_g', 'carbs_g']
-    }
-  }
+      required: ["kcal", "protein_g", "fat_g", "carbs_g"],
+    },
+  },
 };
 
 export class NutritionService {
-  async calculateNutrition(ingredients: IngredientDTO[], recipeId: string): Promise<NutritionValues> {
+  async calculateNutrition(
+    ingredients: IngredientDTO[],
+    recipeId: string
+  ): Promise<NutritionValues> {
     // Formatujemy składniki do czytelnej listy dla AI
-    const ingredientsList = ingredients
-      .map(i => `- ${i.name}: ${i.amount} ${i.unit}`)
-      .join('\n');
+    const ingredientsList = ingredients.map((i) => `- ${i.name}: ${i.amount} ${i.unit}`).join("\n");
 
     const prompt = `Jesteś precyzyjnym ekspertem od dietetyki specjalizującym się w obliczaniu wartości odżywczych potraw.
 
@@ -66,17 +67,17 @@ WAŻNE:
     try {
       // Tworzymy wpis w ai_runs ze statusem pending
       const { data: aiRun, error: insertError } = await supabaseClient
-        .from('ai_runs')
+        .from("ai_runs")
         .insert({
           recipe_id: recipeId,
-          status: 'pending',
-          prompt: `${prompt}\n\nSkładniki:\n${ingredientsList}`
+          status: "pending",
+          prompt: `${prompt}\n\nSkładniki:\n${ingredientsList}`,
         })
         .select()
         .single();
 
       if (insertError) {
-        console.error('Błąd podczas tworzenia ai_run:', insertError);
+        console.error("Błąd podczas tworzenia ai_run:", insertError);
         throw insertError;
       }
 
@@ -84,31 +85,31 @@ WAŻNE:
       const response = await openRouter.sendChat({
         messages: [
           {
-            role: 'system',
-            content: prompt
+            role: "system",
+            content: prompt,
           },
           {
-            role: 'user',
-            content: `Oblicz wartości odżywcze dla następujących składników:\n${ingredientsList}`
-          }
+            role: "user",
+            content: `Oblicz wartości odżywcze dla następujących składników:\n${ingredientsList}`,
+          },
         ],
-        responseFormat: NUTRITION_SCHEMA
+        responseFormat: NUTRITION_SCHEMA,
       });
 
       const nutritionValues = JSON.parse(response.content);
 
       // Aktualizujemy wpis w ai_runs ze statusem success
       const { error: updateError } = await supabaseClient
-        .from('ai_runs')
+        .from("ai_runs")
         .update({
-          status: 'success',
+          status: "success",
           response: nutritionValues,
-          confidence: 0.9 // TODO: Implementacja rzeczywistego wyliczania pewności
+          confidence: 0.9, // TODO: Implementacja rzeczywistego wyliczania pewności
         })
-        .eq('id', aiRun.id);
+        .eq("id", aiRun.id);
 
       if (updateError) {
-        console.error('Błąd podczas aktualizacji ai_run:', updateError);
+        console.error("Błąd podczas aktualizacji ai_run:", updateError);
       }
 
       return nutritionValues;
@@ -116,12 +117,12 @@ WAŻNE:
       // W przypadku błędu aktualizujemy wpis w ai_runs ze statusem error
       if (error instanceof Error) {
         await supabaseClient
-          .from('ai_runs')
+          .from("ai_runs")
           .update({
-            status: 'error',
-            error_message: error.message
+            status: "error",
+            error_message: error.message,
           })
-          .eq('recipe_id', recipeId);
+          .eq("recipe_id", recipeId);
       }
       throw error;
     }
@@ -129,4 +130,4 @@ WAŻNE:
 }
 
 // Eksport domyślnej instancji
-export const nutritionService = new NutritionService(); 
+export const nutritionService = new NutritionService();

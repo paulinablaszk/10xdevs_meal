@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { AlertAIError } from "../AlertAIError";
+import { useEffect, useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Nieprawidłowy adres e-mail.").max(255),
@@ -13,6 +14,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -22,49 +24,55 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
+  useEffect(() => {
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  }, [redirectUrl]);
+
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-        credentials: 'include'
+        credentials: "include",
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError('root', { 
-          message: result.message || 'Wystąpił błąd podczas logowania.' 
+        setError("root", {
+          message: result.message || "Wystąpił błąd podczas logowania.",
         });
         return;
       }
 
-      if (result.status === 'error') {
-        setError('root', { 
-          message: result.message || 'Wystąpił błąd podczas logowania.' 
+      if (result.status === "error") {
+        setError("root", {
+          message: result.message || "Wystąpił błąd podczas logowania.",
         });
         return;
       }
 
       if (!result.session) {
-        setError('root', { 
-          message: 'Brak danych sesji w odpowiedzi.' 
+        setError("root", {
+          message: "Brak danych sesji w odpowiedzi.",
         });
         return;
       }
 
       // Sprawdź czy mamy parametr next w URL
       const params = new URLSearchParams(window.location.search);
-      const nextUrl = params.get('next') || '/recipes';
-      
-      window.location.href = nextUrl;
+      const nextUrl = params.get("next") || "/recipes";
+
+      setRedirectUrl(nextUrl);
     } catch (error) {
-      console.error('Błąd logowania:', error);
-      setError('root', { 
-        message: 'Wystąpił nieoczekiwany błąd podczas logowania.' 
+      console.error("Błąd logowania:", error);
+      setError("root", {
+        message: "Wystąpił nieoczekiwany błąd podczas logowania.",
       });
     }
   };
@@ -95,9 +103,7 @@ export function LoginForm() {
         )}
       </div>
 
-      {errors.root && errors.root.message && (
-        <AlertAIError message={errors.root.message} />
-      )}
+      {errors.root && errors.root.message && <AlertAIError message={errors.root.message} />}
 
       <div className="flex flex-col gap-2">
         <Button
@@ -107,22 +113,16 @@ export function LoginForm() {
         >
           {isSubmitting ? "Logowanie..." : "Zaloguj się"}
         </Button>
-        
+
         <div className="flex justify-between text-sm">
-          <a
-            href="/auth/register"
-            className="text-blue-200 hover:text-blue-100"
-          >
+          <a href="/auth/register" className="text-blue-200 hover:text-blue-100">
             Zarejestruj się
           </a>
-          <a
-            href="/auth/reset-request"
-            className="text-blue-200 hover:text-blue-100"
-          >
+          <a href="/auth/reset-request" className="text-blue-200 hover:text-blue-100">
             Zapomniałeś hasła?
           </a>
         </div>
       </div>
     </form>
   );
-} 
+}

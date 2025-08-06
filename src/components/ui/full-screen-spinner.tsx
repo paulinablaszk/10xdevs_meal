@@ -9,4 +9,4 @@ export function FullScreenSpinner() {
       </div>
     </div>
   );
-} 
+}

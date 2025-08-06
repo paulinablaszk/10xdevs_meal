@@ -1,5 +1,5 @@
-import { expect } from '@playwright/test';
-import type { Page, Locator } from '@playwright/test';
+import { expect } from "@playwright/test";
+import type { Page, Locator } from "@playwright/test";
 
 export class BasePage {
   constructor(protected page: Page) {}
@@ -18,10 +18,7 @@ export class BasePage {
   }
 
   protected async clickAndWaitForNavigation(locator: Locator) {
-    await Promise.all([
-      this.page.waitForNavigation(),
-      locator.click()
-    ]);
+    await Promise.all([this.page.waitForNavigation(), locator.click()]);
   }
 
   async expectToBeVisible(locator: Locator) {
@@ -31,4 +28,4 @@ export class BasePage {
   async expectToHaveText(locator: Locator, text: string) {
     await expect(locator).toHaveText(text);
   }
-} 
+}

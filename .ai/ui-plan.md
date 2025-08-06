@@ -7,9 +7,10 @@ MealPlanner MVP składa się z pięciu głównych widoków osadzonych w układzi
 ## 2. Lista widoków
 
 ### 2.1 Formularz logowania / rejestracji
+
 - **Ścieżka**: `/login`
 - **Cel**: Uwierzytelnienie użytkownika oraz utworzenie konta.
-- **Kluczowe informacje**: pola `email`, `hasło`, przełącznik *Zaloguj / Zarejestruj*, link „Zapomniałeś hasła?” (out of scope).
+- **Kluczowe informacje**: pola `email`, `hasło`, przełącznik _Zaloguj / Zarejestruj_, link „Zapomniałeś hasła?” (out of scope).
 - **Kluczowe komponenty**: `AuthForm`, `Button`, `Input`, `AlertError`.
 - **UX / A11Y / Bezpieczeństwo**:
   - Klawisz Enter wysyła formularz.
@@ -18,6 +19,7 @@ MealPlanner MVP składa się z pięciu głównych widoków osadzonych w układzi
   - Zapobieganie XSS poprzez server-side render Astro.
 
 ### 2.2 Lista przepisów
+
 - **Ścieżka**: `/recipes`
 - **Cel**: Przegląd i wyszukiwanie prywatnych przepisów użytkownika.
 - **Kluczowe informacje**: nazwa, kcal, białko, tłuszcze, węglowodany, data dodania.
@@ -29,6 +31,7 @@ MealPlanner MVP składa się z pięciu głównych widoków osadzonych w układzi
   - Przy 100 przepisach komponent `AddRecipeButton` disabled z tooltipem „Osiągnięto limit 100 przepisów”.
 
 ### 2.3 Dodawanie przepisu
+
 - **Ścieżka**: `/recipes/new`
 - **Cel**: Wprowadzenie składników i kroków, walidacja oraz zapis.
 - **Kluczowe informacje**: pola `name`, `description`, lista składników (nazwa, ilość, jednostka), lista kroków.
@@ -40,6 +43,7 @@ MealPlanner MVP składa się z pięciu głównych widoków osadzonych w układzi
   - CSRF ograniczone przez cookie SameSite=Lax.
 
 ### 2.4 Szczegóły przepisu
+
 - **Ścieżka**: `/recipes/:id`
 - **Cel**: Wyświetlenie pełnych danych przepisu, statusu AI, opcji edycji i usunięcia.
 - **Kluczowe informacje**: wszystkie pola przepisu + status AI.
@@ -48,7 +52,6 @@ MealPlanner MVP składa się z pięciu głównych widoków osadzonych w układzi
   - Jeśli `ai_run.status === 'error'` pokazuje się `AlertAIError` z treścią `errorMessage`.
   - Przy ładowaniu widoku (po redirect) widoczny `FullScreenSpinner` do pierwszego 200.
   - `ModalConfirmDelete` z focus-trapem i klawiszem ESC.
-
 
 ## 3. Mapa podróży użytkownika
 
@@ -67,7 +70,7 @@ MealPlanner MVP składa się z pięciu głównych widoków osadzonych w układzi
  ├─ <Header>
  │   ├─ <HamburgerIcon onClick=toggleDrawer />
  │   └─ <Logo />
- ├─ <DrawerMenu>   « Recipes | Dodaj przepis | Wyloguj 
+ ├─ <DrawerMenu>   « Recipes | Dodaj przepis | Wyloguj
  ├─ <ToastContainer />  « globalne toasty (np. 429)
  └─ <RouterOutlet />    « dynamiczne widoki opisane w §2
 ```
@@ -77,15 +80,15 @@ MealPlanner MVP składa się z pięciu głównych widoków osadzonych w układzi
 
 ## 5. Kluczowe komponenty wielokrotnego użytku
 
-| Komponent | Przeznaczenie |
-|-----------|---------------|
-| `Layout` | Wspólny wrapper – nagłówek, menu, obszar treści, toasty |
-| `AuthForm` | Formularz logowanie/rejestracja z przełącznikiem trybu |
-| `RecipeCard` | Pozycja listy z nazwą i makro |
-| `RecipeForm` | Złożony formularz dodawania/edycji przepisu |
-| `UnitSelect` | Select jednokrotnego wyboru jednostki (dane z `/api/units`) |
-| `LoadMoreButton` | Przyciski infinite scroll / ręczne ładowanie następnej strony |
-| `FullScreenSpinner` | Loader pełnoekranowy podczas fetch/redirect |
-| `AlertAIError` | Alert w widoku detalu gdy `ai_run.status=error` |
-| `Toast` | Globalne powiadomienia – szczególnie kod 429 |
-| `ModalConfirmDelete` | Potwierdzenie usunięcia z focus-trap | 
+| Komponent            | Przeznaczenie                                                 |
+| -------------------- | ------------------------------------------------------------- |
+| `Layout`             | Wspólny wrapper – nagłówek, menu, obszar treści, toasty       |
+| `AuthForm`           | Formularz logowanie/rejestracja z przełącznikiem trybu        |
+| `RecipeCard`         | Pozycja listy z nazwą i makro                                 |
+| `RecipeForm`         | Złożony formularz dodawania/edycji przepisu                   |
+| `UnitSelect`         | Select jednokrotnego wyboru jednostki (dane z `/api/units`)   |
+| `LoadMoreButton`     | Przyciski infinite scroll / ręczne ładowanie następnej strony |
+| `FullScreenSpinner`  | Loader pełnoekranowy podczas fetch/redirect                   |
+| `AlertAIError`       | Alert w widoku detalu gdy `ai_run.status=error`               |
+| `Toast`              | Globalne powiadomienia – szczególnie kod 429                  |
+| `ModalConfirmDelete` | Potwierdzenie usunięcia z focus-trap                          |

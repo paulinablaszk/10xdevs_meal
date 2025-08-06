@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DrawerMenuProps {
   className?: string;
@@ -14,19 +14,14 @@ export function DrawerMenu({ className, onLogout, pathname }: DrawerMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const isActive = (path: string) => {
-    if (path === '/recipes' && pathname === '/') return true;
+    if (path === "/recipes" && pathname === "/") return true;
     return pathname.startsWith(path);
   };
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={className}
-          aria-label="Menu"
-        >
+        <Button variant="ghost" size="icon" className={className} aria-label="Menu">
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
@@ -36,7 +31,7 @@ export function DrawerMenu({ className, onLogout, pathname }: DrawerMenuProps) {
             href="/recipes"
             className={cn(
               "text-sm font-medium transition-colors hover:text-primary",
-              isActive('/recipes') ? "text-primary" : "text-muted-foreground"
+              isActive("/recipes") ? "text-primary" : "text-muted-foreground"
             )}
             onClick={() => setIsOpen(false)}
           >
@@ -46,7 +41,7 @@ export function DrawerMenu({ className, onLogout, pathname }: DrawerMenuProps) {
             href="/recipes/new"
             className={cn(
               "text-sm font-medium transition-colors hover:text-primary",
-              isActive('/recipes/new') ? "text-primary" : "text-muted-foreground"
+              isActive("/recipes/new") ? "text-primary" : "text-muted-foreground"
             )}
             onClick={() => setIsOpen(false)}
           >
@@ -65,4 +60,4 @@ export function DrawerMenu({ className, onLogout, pathname }: DrawerMenuProps) {
       </SheetContent>
     </Sheet>
   );
-} 
+}

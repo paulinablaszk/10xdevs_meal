@@ -1,13 +1,17 @@
 # Plan implementacji widoku: Dodaj nowy przepis
 
 ## 1. Przegląd
+
 Celem tego widoku jest umożliwienie użytkownikom dodawania nowych przepisów do systemu. Widok będzie zawierał formularz do wprowadzania nazwy, opisu, listy składników (z ilością i jednostką) oraz kroków przygotowania. Po pomyślnej walidacji i przesłaniu, dane zostaną wysłane do API, a użytkownik zostanie przekierowany na stronę nowo utworzonego przepisu, gdzie w tle rozpocznie się proces analizy AI w celu obliczenia wartości odżywczych.
 
 ## 2. Routing widoku
+
 Widok będzie dostępny pod następującą ścieżką:
+
 - `/recipes/new`
 
 ## 3. Struktura komponentów
+
 Hierarchia komponentów dla widoku dodawania przepisu będzie wyglądać następująco:
 
 ```
@@ -32,6 +36,7 @@ src/pages/recipes/new.astro
 ## 4. Szczegóły komponentów
 
 ### `RecipeNewView.tsx`
+
 - **Opis**: Główny komponent widoku, który renderuje cały interfejs strony `/recipes/new`. Jest odpowiedzialny za inicjalizację logiki formularza i wyświetlanie nagłówka.
 - **Główne elementy**: `<RecipeForm />`.
 - **Obsługiwane interakcje**: Brak bezpośrednich interakcji, deleguje wszystko do `RecipeForm`.
@@ -39,6 +44,7 @@ src/pages/recipes/new.astro
 - **Propsy**: Brak.
 
 ### `RecipeForm.tsx`
+
 - **Opis**: Sercem widoku jest ten komponent formularza, który zarządza stanem całego przepisu, obsługuje walidację i komunikuje się z API. Wykorzystuje customowy hook `useRecipeForm` do enkapsulacji logiki.
 - **Główne elementy**: `Input` (Shadcn/ui), `Textarea` (Shadcn/ui), `Button` (Shadcn/ui), `IngredientRow`, `StepsTextarea`.
 - **Obsługiwane interakcje**:
@@ -52,6 +58,7 @@ src/pages/recipes/new.astro
 - **Propsy**: Brak.
 
 ### `IngredientRow.tsx`
+
 - **Opis**: Reprezentuje pojedynczy wiersz na liście składników. Umożliwia użytkownikowi wprowadzenie nazwy, ilości i jednostki dla jednego składnika.
 - **Główne elementy**: `Input` (dla nazwy i ilości), `UnitSelect`, `Button` (do usunięcia wiersza).
 - **Obsługiwane interakcje**:
@@ -71,6 +78,7 @@ src/pages/recipes/new.astro
   - `errors: FieldErrors<IngredientViewModel>`
 
 ### `UnitSelect.tsx`
+
 - **Opis**: Komponent `select` do wyboru jednostki miary. Pobiera listę dostępnych jednostek z API przy pierwszym renderowaniu.
 - **Główne elementy**: `Select` z `Shadcn/ui`.
 - **Obsługiwane interakcje**: `onValueChange`.
@@ -80,6 +88,7 @@ src/pages/recipes/new.astro
   - `onChange: (value: UnitType) => void`
 
 ### `StepsTextarea.tsx`
+
 - **Opis**: Pole tekstowe do wprowadzania kroków przygotowania przepisu. Kroki powinny być oddzielone nowymi liniami.
 - **Główne elementy**: `Textarea` z `Shadcn/ui`.
 - **Obsługiwane interakcje**: `onChange`.
@@ -91,7 +100,9 @@ src/pages/recipes/new.astro
 ## 5. Typy
 
 ### `IngredientViewModel`
+
 Reprezentuje stan pojedynczego składnika w formularzu. Jest identyczny z `IngredientDTO`, ale używany w kontekście stanu formularza.
+
 ```typescript
 interface IngredientViewModel {
   name: string;
@@ -101,7 +112,9 @@ interface IngredientViewModel {
 ```
 
 ### `RecipeFormViewModel`
+
 Główny model widoku dla formularza. Reprezentuje dane, które użytkownik wprowadza, zanim zostaną one przekonwertowane na `RecipeCreateCommand` i wysłane do API.
+
 ```typescript
 interface RecipeFormViewModel {
   name: string;
@@ -112,7 +125,9 @@ interface RecipeFormViewModel {
 ```
 
 ### `RecipeCreateCommand` (istniejący typ)
+
 DTO używane do wysłania danych do `POST /api/recipes`. Przed wysłaniem, `RecipeFormViewModel` jest transformowany do tego typu (głównie `steps` ze `string` na `string[]`).
+
 ```typescript
 interface RecipeCreateCommand {
   name: string;
@@ -123,9 +138,11 @@ interface RecipeCreateCommand {
 ```
 
 ## 6. Zarządzanie stanem
+
 Zarządzanie stanem formularza zostanie zrealizowane przy użyciu biblioteki `react-hook-form` w połączeniu z `@hookform/resolvers/zod` do walidacji.
 
 Zostanie stworzony customowy hook `useRecipeForm`, który będzie zawierał:
+
 - **`useForm` hook**: Inicjalizacja z `RecipeFormViewModel` jako domyślnymi wartościami.
 - **Schemat Zod**: Definicja reguł walidacji dla `RecipeFormViewModel`.
 - **`useFieldArray`**: Do zarządzania dynamiczną listą składników (`ingredients`).
@@ -138,12 +155,14 @@ Zostanie stworzony customowy hook `useRecipeForm`, który będzie zawierał:
 ## 7. Integracja API
 
 ### `GET /api/units`
+
 - **Cel**: Pobranie listy dostępnych jednostek miary.
 - **Kiedy**: Wywoływane jednorazowo w komponencie `UnitSelect` przy jego pierwszym załadowaniu (np. w `useEffect` lub przy użyciu `react-query`/`swr` do cachowania).
 - **Odpowiedź**: `UnitsDTO` (czyli `UnitType[]`).
 - **Obsługa**: Pobrane dane zasilą opcje w każdym `UnitSelect`.
 
 ### `POST /api/recipes`
+
 - **Cel**: Zapisanie nowego przepisu.
 - **Kiedy**: Wywoływane po pomyślnej walidacji front-endowej i kliknięciu przycisku "Zapisz przepis".
 - **Żądanie (Request Body)**: Obiekt typu `RecipeCreateCommand`.
@@ -151,6 +170,7 @@ Zostanie stworzony customowy hook `useRecipeForm`, który będzie zawierał:
 - **Odpowiedź (Error)**: Patrz sekcja "Obsługa błędów".
 
 ## 8. Interakcje użytkownika
+
 - **Wprowadzanie tekstu**: Użytkownik wpisuje dane w polach `name`, `description` oraz w polach składników. Stan jest zarządzany przez `react-hook-form`.
 - **Dodawanie składnika**: Użytkownik klika przycisk "Dodaj składnik". Do formularza dodawany jest nowy, pusty `IngredientRow`.
 - **Usuwanie składnika**: Użytkownik klika ikonę kosza obok składnika. `IngredientRow` jest usuwany z formularza.
@@ -161,6 +181,7 @@ Zostanie stworzony customowy hook `useRecipeForm`, który będzie zawierał:
   - W razie błędu API, wyświetlany jest komunikat (np. toast).
 
 ## 9. Warunki i walidacja
+
 - **Warunki na poziomie UI**:
   - Przycisk "Zapisz przepis" jest wyłączony (`disabled`), gdy formularz jest w trakcie wysyłania (`isSubmitting`).
   - Przycisk "Usuń składnik" jest widoczny tylko, gdy w formularzu jest więcej niż jeden składnik.
@@ -176,6 +197,7 @@ Zostanie stworzony customowy hook `useRecipeForm`, który będzie zawierał:
 Komunikaty o błędach walidacji będą wyświetlane inline, bezpośrednio pod polami, których dotyczą.
 
 ## 10. Obsługa błędów
+
 - **Błędy walidacji (front-end)**: Obsługiwane przez `react-hook-form` i Zod. Komunikaty są wyświetlane przy polach.
 - **Błędy API (`POST /api/recipes`)**:
   - **400 (Validation failed)**: Wyświetlenie generycznego komunikatu typu toast: "Błąd walidacji po stronie serwera. Sprawdź wprowadzone dane." Ten błąd nie powinien wystąpić przy poprawnej walidacji front-endowej.
@@ -184,6 +206,7 @@ Komunikaty o błędach walidacji będą wyświetlane inline, bezpośrednio pod p
   - **Błąd sieciowy/inny błąd serwera**: Wyświetlenie generycznego komunikatu typu toast: "Wystąpił błąd. Spróbuj ponownie później."
 
 ## 11. Kroki implementacji
+
 1.  **Struktura plików**: Utworzenie pliku `src/pages/recipes/new.astro` oraz komponentu `src/components/views/RecipeNewView.tsx`.
 2.  **Komponenty UI**: Stworzenie szkieletów komponentów: `RecipeForm.tsx`, `IngredientRow.tsx`, `UnitSelect.tsx` i `StepsTextarea.tsx` z użyciem komponentów z `Shadcn/ui`.
 3.  **Integracja `UnitSelect`**: Zaimplementowanie w `UnitSelect.tsx` logiki pobierania i cachowania jednostek z `GET /api/units`.
@@ -192,4 +215,4 @@ Komunikaty o błędach walidacji będą wyświetlane inline, bezpośrednio pod p
 6.  **Obsługa wysyłki**: Implementacja funkcji `onSubmit` w `useRecipeForm`, która będzie transformować dane i wysyłać je do `POST /api/recipes`.
 7.  **Obsługa odpowiedzi API**: Implementacja logiki obsługi odpowiedzi `202 Accepted` (przekierowanie z `FullScreenSpinner`) oraz obsługa błędów (wyświetlanie toastów).
 8.  **Stylowanie i A11Y**: Dopracowanie wyglądu za pomocą Tailwind CSS, upewnienie się, że wszystkie elementy formularza mają etykiety, a stany `focus` są poprawnie obsłużone.
-9.  **Testowanie**: Ręczne przetestowanie wszystkich ścieżek użytkownika, walidacji i obsługi błędów. 
+9.  **Testowanie**: Ręczne przetestowanie wszystkich ścieżek użytkownika, walidacji i obsługi błędów.

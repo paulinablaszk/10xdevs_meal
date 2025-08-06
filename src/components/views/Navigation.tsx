@@ -1,10 +1,8 @@
-import { DrawerMenu } from './DrawerMenu';
-import { useAuth } from '../AuthProvider';
-import { supabaseClient } from '../../db/supabase.client';
-import { Menu, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
-import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { DrawerMenu } from "./DrawerMenu";
+import { useAuth } from "../AuthProvider";
+import { LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 interface NavigationProps {
   userEmail?: string;
@@ -12,7 +10,7 @@ interface NavigationProps {
 
 export function Navigation({ userEmail }: NavigationProps) {
   const { session } = useAuth();
-  const [pathname, setPathname] = useState('');
+  const [pathname, setPathname] = useState("");
 
   useEffect(() => {
     setPathname(window.location.pathname);
@@ -20,23 +18,23 @@ export function Navigation({ userEmail }: NavigationProps) {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Błąd podczas wylogowywania');
+        throw new Error("Błąd podczas wylogowywania");
       }
 
-      window.location.href = '/auth/login';
+      window.location.href = "/auth/login";
     } catch (error) {
-      console.error('Błąd podczas wylogowywania:', error);
+      console.error("Błąd podczas wylogowywania:", error);
     }
   };
 
   const isActive = (path: string) => {
-    if (path === '/recipes' && pathname === '/') return true;
+    if (path === "/recipes" && pathname === "/") return true;
     return pathname.startsWith(path);
   };
 
@@ -45,7 +43,7 @@ export function Navigation({ userEmail }: NavigationProps) {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="flex items-center gap-6">
           <DrawerMenu onLogout={handleLogout} className="md:hidden" pathname={pathname} />
-          
+
           <a href="/recipes" className="flex items-center">
             <span className="font-bold text-lg text-white pl-3">10xDevs Meal</span>
           </a>
@@ -57,7 +55,7 @@ export function Navigation({ userEmail }: NavigationProps) {
               href="/recipes"
               className={cn(
                 "transition-colors hover:text-white duration-200",
-                isActive('/recipes') ? "text-white" : "text-white/70"
+                isActive("/recipes") ? "text-white" : "text-white/70"
               )}
             >
               Przepisy
@@ -66,7 +64,7 @@ export function Navigation({ userEmail }: NavigationProps) {
               href="/recipes/new"
               className={cn(
                 "transition-colors hover:text-white duration-200",
-                isActive('/recipes/new') ? "text-white" : "text-white/70"
+                isActive("/recipes/new") ? "text-white" : "text-white/70"
               )}
             >
               Dodaj przepis
@@ -94,4 +92,4 @@ export function Navigation({ userEmail }: NavigationProps) {
       </div>
     </header>
   );
-} 
+}

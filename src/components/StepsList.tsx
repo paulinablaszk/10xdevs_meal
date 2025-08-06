@@ -19,7 +19,7 @@ export function StepsList({ steps }: StepsListProps) {
   }
 
   if (steps.length > 20) {
-    console.warn('StepsList: Liczba kroków przekracza maksymalną wartość (20)');
+    console.warn("StepsList: Liczba kroków przekracza maksymalną wartość (20)");
   }
 
   return (
@@ -30,10 +30,7 @@ export function StepsList({ steps }: StepsListProps) {
       <CardContent>
         <ol className="list-decimal list-inside space-y-4">
           {steps.slice(0, 20).map((step, index) => (
-            <li 
-              key={index}
-              className="pl-2 leading-relaxed"
-            >
+            <li key={index} className="pl-2 leading-relaxed">
               {step}
             </li>
           ))}
@@ -41,4 +38,4 @@ export function StepsList({ steps }: StepsListProps) {
       </CardContent>
     </Card>
   );
-} 
+}

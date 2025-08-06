@@ -45,8 +45,8 @@ export const RecipeListView = () => {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-semibold mb-4">Brak przepisów</h2>
-        <p className="text-muted-foreground mb-8">
-          {searchTerm 
+        <p className="text-muted-foreground mb-8" data-testid="empty-recipes-message">
+          {searchInput.trim() !== "" 
             ? "Nie znaleziono przepisów spełniających kryteria wyszukiwania." 
             : "Nie masz jeszcze żadnych przepisów. Dodaj swój pierwszy przepis!"}
         </p>
@@ -99,7 +99,7 @@ export const RecipeListView = () => {
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="recipe-list">
         {recipes.map(recipe => (
           <RecipeCard key={recipe.id} recipe={recipe} />
         ))}

@@ -140,6 +140,7 @@ export function RecipeForm() {
               {...register("name")}
               placeholder="Nazwa przepisu"
               className="text-xl"
+              data-testid="recipe-title"
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
@@ -171,6 +172,7 @@ export function RecipeForm() {
                 });
               }}
               className="mt-2 bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700 w-auto flex items-center gap-2"
+              data-testid="add-ingredient-button"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               Dodaj składnik
@@ -181,6 +183,7 @@ export function RecipeForm() {
             <h3 className="text-lg font-semibold mb-4">Kroki przygotowania</h3>
             <StepsTextarea
               {...register("steps")}
+              data-testid="recipe-steps"
             />
             {errors.steps && (
               <p className="text-red-500 text-sm mt-1">{errors.steps.message}</p>
@@ -192,6 +195,7 @@ export function RecipeForm() {
           type="submit"
           disabled={isSubmitting}
           className="w-auto bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+          data-testid="submit-recipe"
         >
           {isSubmitting ? (
             <>

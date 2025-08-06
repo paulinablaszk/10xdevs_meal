@@ -39,7 +39,7 @@ export function UnitSelect({ value, onChange }: UnitSelectProps) {
         onChange(val as UnitType);
       }}
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full" data-testid="ingredient-unit">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

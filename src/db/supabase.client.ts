@@ -11,8 +11,8 @@ const supabaseUrl = isBrowser
   : import.meta.env.SUPABASE_URL;
 
 const supabaseAnonKey = isBrowser 
-  ? (window as any).__env?.SUPABASE_KEY 
-  : import.meta.env.SUPABASE_KEY;
+  ? (window as any).__env?.SUPABASE_PUBLIC_KEY 
+  : import.meta.env.SUPABASE_PUBLIC_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials not found. Authentication features will not work.');
@@ -24,7 +24,7 @@ console.log('Environment:', {
   windowEnv: isBrowser ? (window as any).__env : undefined,
   importEnv: {
     SUPABASE_URL: import.meta.env.SUPABASE_URL,
-    SUPABASE_KEY: import.meta.env.SUPABASE_KEY
+    SUPABASE_PUBLIC_KEY: import.meta.env.SUPABASE_PUBLIC_KEY
   }
 });
 

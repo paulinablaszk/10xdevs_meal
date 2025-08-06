@@ -36,7 +36,7 @@ export const useRecipeList = (): Omit<RecipeListState, 'search'> & RecipeListAct
       const params = new URLSearchParams();
       if (query.page) params.append('page', query.page.toString());
       if (query.limit) params.append('limit', query.limit.toString());
-      if (query.search) params.append('search', query.search);
+      if (query.search && query.search.trim() !== '') params.append('search', query.search);
 
       const response = await fetch(`/api/recipes?${params.toString()}`);
       
@@ -90,7 +90,7 @@ export const useRecipeList = (): Omit<RecipeListState, 'search'> & RecipeListAct
 
   // Initial fetch
   useEffect(() => {
-    fetchRecipes({ page: 1, limit: DEFAULT_LIMIT });
+    fetchRecipes({ page: 1, limit: DEFAULT_LIMIT, search: '' });
   }, [fetchRecipes]);
 
   return {

@@ -23,11 +23,11 @@ const userEmail = Astro.locals.session?.user?.email;
     <title>{title}</title>
     <script is:inline define:vars={{ 
       SUPABASE_URL: import.meta.env.SUPABASE_URL,
-      SUPABASE_KEY: import.meta.env.SUPABASE_KEY 
+      SUPABASE_PUBLIC_KEY: import.meta.env.SUPABASE_PUBLIC_KEY 
     }}>
       window.__env = { 
         SUPABASE_URL,
-        SUPABASE_KEY
+        SUPABASE_PUBLIC_KEY
       };
     </script>
   </head>

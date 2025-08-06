@@ -25,7 +25,7 @@ export function IngredientRow({
   canDelete
 }: IngredientRowProps) {
   return (
-    <div className="flex items-center gap-3 mb-4">
+    <div className="flex items-center gap-3 mb-4" data-testid="ingredient-row">
       <div className="flex-[2]">
         <Input
           {...register(`ingredients.${index}.name`)}
@@ -34,6 +34,7 @@ export function IngredientRow({
             errors?.name ? "border-red-500" : "",
             "w-full"
           )}
+          data-testid="ingredient-name"
         />
         {errors?.name && (
           <p className="text-red-500 text-sm mt-1 absolute">{errors.name.message}</p>
@@ -51,6 +52,7 @@ export function IngredientRow({
             errors?.amount ? "border-red-500" : "",
             "w-full"
           )}
+          data-testid="ingredient-amount"
         />
         {errors?.amount && (
           <p className="text-red-500 text-sm mt-1 absolute">{errors.amount.message}</p>
@@ -71,6 +73,7 @@ export function IngredientRow({
               <UnitSelect
                 value={field.value}
                 onChange={field.onChange}
+                data-testid="ingredient-unit"
               />
             );
           }}
@@ -86,6 +89,7 @@ export function IngredientRow({
           variant="ghost"
           size="icon"
           onClick={() => onRemove(index)}
+          data-testid="remove-ingredient-button"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

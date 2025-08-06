@@ -1,4 +1,4 @@
-import type { UnitType } from '@/types';
+import type { UnitType } from "@/types";
 
 export interface IngredientViewModel {
   name: string;
@@ -10,4 +10,4 @@ export interface RecipeFormViewModel {
   name: string;
   ingredients: IngredientViewModel[];
   steps: string; // Kroki jako pojedynczy string, dzielony nowymi liniami
-} 
+}

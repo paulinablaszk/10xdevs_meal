@@ -1,11 +1,6 @@
-import type { Page } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { BasePage } from "./BasePage";
 
 export class LoginPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
-  }
-
   get emailInput() {
     return this.page.locator('input[type="email"]');
   }
@@ -25,13 +20,12 @@ export class LoginPage extends BasePage {
   async login(email: string, password: string) {
     // Nasłuchuj na odpowiedzi z API
     const responsePromise = this.page.waitForResponse(
-      response => 
-        response.url().includes('/api/auth/login') && 
-        response.request().method() === 'POST',
+      (response) =>
+        response.url().includes("/api/auth/login") && response.request().method() === "POST",
       { timeout: 10000 }
     );
 
-    await this.goto('/auth/login');
+    await this.goto("/auth/login");
     await this.fillInput(this.emailInput, email);
     await this.fillInput(this.passwordInput, password);
     await this.submitButton.click();
@@ -39,14 +33,14 @@ export class LoginPage extends BasePage {
     try {
       // Poczekaj na odpowiedź
       const response = await responsePromise;
-      console.log('Login response status:', response.status());
+      console.log("Login response status:", response.status());
 
       // Poczekaj na nawigację tylko jeśli logowanie się powiodło
       if (response.ok()) {
-        await this.waitForUrl('/recipes');
+        await this.waitForUrl("/recipes");
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error("Error during login:", error);
       // Nie rzucamy błędu, ponieważ w przypadku niepoprawnych danych
       // oczekujemy komunikatu o błędzie
     }
@@ -55,4 +49,4 @@ export class LoginPage extends BasePage {
   async expectLoginError() {
     await this.expectToBeVisible(this.errorAlert);
   }
-} 
+}

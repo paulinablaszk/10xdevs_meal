@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { supabaseClient } from '../db/supabase.client';
-import type { Session } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabaseClient } from "../db/supabase.client";
+import type { Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
   session: Session | null;
@@ -19,7 +19,7 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthContextType>({
     session: null,
-    loading: true
+    loading: true,
   });
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (mounted) {
         setState({
           session,
-          loading: false
+          loading: false,
         });
       }
     };
@@ -39,29 +39,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const getCookie = (name: string) => {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      if (parts.length === 2) return parts.pop()?.split(";").shift();
       return null;
     };
 
-    const accessToken = getCookie('sb-access-token');
-    const refreshToken = getCookie('sb-refresh-token');
+    const accessToken = getCookie("sb-access-token");
+    const refreshToken = getCookie("sb-refresh-token");
 
     // Jeśli mamy tokeny, ustaw sesję
     if (accessToken && refreshToken) {
-      supabaseClient.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      }).then(({ data: { session } }) => {
-        updateState(session);
-      });
+      supabaseClient.auth
+        .setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        .then(({ data: { session } }) => {
+          updateState(session);
+        });
     } else {
       // Jeśli nie ma tokenów, spróbuj pobrać sesję standardowo
-      supabaseClient.auth.getSession()
+      supabaseClient.auth
+        .getSession()
         .then(({ data: { session } }) => {
           updateState(session);
         })
         .catch((error) => {
-          console.error('Błąd podczas pobierania sesji:', error);
+          console.error("Błąd podczas pobierania sesji:", error);
           updateState(null);
         });
     }
@@ -79,9 +82,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return (
-    <AuthContext.Provider value={state}>
-      {children}
-    </AuthContext.Provider>
-  );
-} 
+  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
+}

@@ -27,7 +27,7 @@ export function IngredientsList({ ingredients }: IngredientsListProps) {
       <CardContent>
         <ul className="space-y-2">
           {ingredients.map((ingredient, index) => (
-            <li 
+            <li
               key={`${ingredient.name}-${index}`}
               className="flex items-center justify-between py-1 border-b last:border-0 border-gray-100"
             >
@@ -41,4 +41,4 @@ export function IngredientsList({ ingredients }: IngredientsListProps) {
       </CardContent>
     </Card>
   );
-} 
+}

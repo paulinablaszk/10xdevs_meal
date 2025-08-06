@@ -9,6 +9,7 @@ import eslintPluginReactHooks from "eslint-plugin-react-hooks";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import tseslint from "typescript-eslint";
+import globals from "globals";
 
 // File path setup
 const __filename = fileURLToPath(import.meta.url);
@@ -18,8 +19,30 @@ const gitignorePath = path.resolve(__dirname, ".gitignore");
 const baseConfig = tseslint.config({
   extends: [eslint.configs.recommended, tseslint.configs.strict, tseslint.configs.stylistic],
   rules: {
-    "no-console": "warn",
+    "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-unused-vars": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        endOfLine: "auto",
+        astroAllowShorthand: true,
+      },
+    ],
+  },
+});
+
+const testConfig = tseslint.config({
+  files: ["**/test/**/*", "**/e2e/**/*", "**/playwright/**/*"],
+  rules: {
+    "no-console": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
+  },
+});
+
+const serverConfig = tseslint.config({
+  files: ["**/api/**/*", "**/services/**/*", "**/middleware/**/*"],
+  rules: {
+    "no-console": "off",
   },
 });
 
@@ -56,11 +79,34 @@ const reactConfig = tseslint.config({
   },
 });
 
+const nodeConfig = tseslint.config({
+  files: ["**/*.mjs", "**/*.config.js"],
+  languageOptions: {
+    globals: {
+      ...globals.node,
+    },
+  },
+});
+
+const astroConfig = tseslint.config({
+  files: ["**/*.astro"],
+  rules: {
+    "prettier/prettier": "off",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  {
+    ignores: ["**/*.astro"],
+  },
   baseConfig,
+  testConfig,
+  serverConfig,
   jsxA11yConfig,
   reactConfig,
+  nodeConfig,
+  astroConfig,
   eslintPluginAstro.configs["flat/recommended"],
   eslintPluginPrettier
 );

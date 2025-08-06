@@ -1,25 +1,38 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RecipeService } from '../lib/services/recipe.service';
-import { supabaseClient } from '@/db/supabase.client';
-import { nutritionService } from '@/lib/services/nutrition.service';
-import type { RecipeCreateCommand } from '@/types';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { RecipeService } from "../lib/services/recipe.service";
+import { supabaseClient } from "@/db/supabase.client";
+import { nutritionService } from "@/lib/services/nutrition.service";
+import type { RecipeCreateCommand } from "@/types";
+import type { Database } from "@/db/database.types";
 
-describe('RecipeService', () => {
+type RecipeRow = Database["public"]["Tables"]["recipes"]["Row"];
+interface SupabaseResponse {
+  data: RecipeRow[];
+  count: number;
+  error: null | {
+    message: string;
+    code: string;
+  };
+}
+
+describe("RecipeService", () => {
   let service: RecipeService;
-  const userId = 'test-user';
+  const userId = "test-user";
 
-  const mockRecipeData = {
-    id: '1',
-    name: 'Test Recipe',
-    description: 'Test Description',
-    ingredients: [{ name: 'ingredient1', amount: 100, unit: 'g' }],
-    steps: ['step1'],
+  const mockRecipeData: RecipeRow = {
+    id: "1",
+    name: "Test Recipe",
+    description: "Test Description",
+    ingredients: [{ name: "ingredient1", amount: 100, unit: "g" }],
+    steps: ["step1"],
     created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     user_id: userId,
     kcal: 100,
     protein_g: 10,
     fat_g: 5,
     carbs_g: 15,
+    is_manual_override: false,
   };
 
   beforeEach(() => {
@@ -27,7 +40,7 @@ describe('RecipeService', () => {
     vi.clearAllMocks();
 
     // Domyślny mock dla from().select()
-    vi.spyOn(supabaseClient, 'from').mockReturnValue({
+    vi.spyOn(supabaseClient, "from").mockReturnValue({
       select: vi.fn().mockReturnThis(),
       insert: vi.fn().mockReturnThis(),
       update: vi.fn().mockReturnThis(),
@@ -37,11 +50,11 @@ describe('RecipeService', () => {
       contains: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       range: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ 
+      single: vi.fn().mockResolvedValue({
         data: mockRecipeData,
-        error: null 
+        error: null,
       }),
-      then(onFulfilled: (value: { data: any[]; count: number; error: any }) => void) {
+      then(onFulfilled: (value: SupabaseResponse) => void) {
         onFulfilled({
           data: [mockRecipeData],
           count: 1,
@@ -51,109 +64,109 @@ describe('RecipeService', () => {
     });
   });
 
-  describe('listRecipes', () => {
-    it('should return paginated recipes with default parameters', async () => {
+  describe("listRecipes", () => {
+    it("should return paginated recipes with default parameters", async () => {
       const result = await service.listRecipes({});
-      
+
       expect(result).toEqual({
         page: 1,
         limit: 20,
         total: 1,
         results: expect.arrayContaining([
           expect.objectContaining({
-            id: '1',
-            name: 'Test Recipe'
-          })
-        ])
+            id: "1",
+            name: "Test Recipe",
+          }),
+        ]),
       });
     });
 
-    it('should apply search filter when provided', async () => {
-      await service.listRecipes({ search: 'test' });
-      expect(supabaseClient.from).toHaveBeenCalledWith('recipes');
+    it("should apply search filter when provided", async () => {
+      await service.listRecipes({ search: "test" });
+      expect(supabaseClient.from).toHaveBeenCalledWith("recipes");
     });
 
-    it('should apply ingredient filter when provided', async () => {
-      await service.listRecipes({ 
-        ingredient: ['ingredient1'] 
+    it("should apply ingredient filter when provided", async () => {
+      await service.listRecipes({
+        ingredient: ["ingredient1"],
       });
-      
-      expect(supabaseClient.from).toHaveBeenCalledWith('recipes');
+
+      expect(supabaseClient.from).toHaveBeenCalledWith("recipes");
     });
 
-    it('should handle custom pagination parameters', async () => {
-      const result = await service.listRecipes({ 
-        page: 2, 
-        limit: 10 
+    it("should handle custom pagination parameters", async () => {
+      const result = await service.listRecipes({
+        page: 2,
+        limit: 10,
       });
-      
+
       expect(result.page).toBe(2);
       expect(result.limit).toBe(10);
     });
   });
 
-  describe('getRecipeById', () => {
-    it('should return recipe by id', async () => {
-      const recipe = await service.getRecipeById('1');
-      
+  describe("getRecipeById", () => {
+    it("should return recipe by id", async () => {
+      const recipe = await service.getRecipeById("1");
+
       expect(recipe).toEqual(
         expect.objectContaining({
-          id: '1',
-          name: 'Test Recipe',
-          userId: userId
+          id: "1",
+          name: "Test Recipe",
+          userId: userId,
         })
       );
     });
 
-    it('should throw NOT_FOUND error when recipe does not exist', async () => {
-      vi.spyOn(supabaseClient, 'from').mockReturnValueOnce({
-        ...supabaseClient.from('recipes'),
+    it("should throw NOT_FOUND error when recipe does not exist", async () => {
+      vi.spyOn(supabaseClient, "from").mockReturnValueOnce({
+        ...supabaseClient.from("recipes"),
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockRejectedValue({ code: 'PGRST116', message: 'NOT_FOUND' })
+        single: vi.fn().mockRejectedValue({ code: "PGRST116", message: "NOT_FOUND" }),
       });
 
-      await expect(service.getRecipeById('999')).rejects.toThrow('NOT_FOUND');
+      await expect(service.getRecipeById("999")).rejects.toThrow("NOT_FOUND");
     });
 
-    it('should throw FORBIDDEN error when recipe belongs to different user', async () => {
-      vi.spyOn(supabaseClient, 'from').mockReturnValueOnce({
-        ...supabaseClient.from('recipes'),
+    it("should throw FORBIDDEN error when recipe belongs to different user", async () => {
+      vi.spyOn(supabaseClient, "from").mockReturnValueOnce({
+        ...supabaseClient.from("recipes"),
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ 
-          data: { 
+        single: vi.fn().mockResolvedValue({
+          data: {
             ...mockRecipeData,
-            user_id: 'different-user',
-          }, 
-          error: null 
-        })
+            user_id: "different-user",
+          },
+          error: null,
+        }),
       });
 
-      await expect(service.getRecipeById('1')).rejects.toThrow('FORBIDDEN');
+      await expect(service.getRecipeById("1")).rejects.toThrow("FORBIDDEN");
     });
   });
 
-  describe('createRecipe', () => {
+  describe("createRecipe", () => {
     const mockRecipe: RecipeCreateCommand = {
-      name: 'New Recipe',
-      description: 'Test Description',
-      ingredients: [{ name: 'ingredient1', amount: 100, unit: 'g' }],
-      steps: ['step1']
+      name: "New Recipe",
+      description: "Test Description",
+      ingredients: [{ name: "ingredient1", amount: 100, unit: "g" }],
+      steps: ["step1"],
     };
 
-    it('should create recipe with nutrition values', async () => {
+    it("should create recipe with nutrition values", async () => {
       const mockNutrition = {
         kcal: 100,
         protein_g: 10,
         fat_g: 5,
-        carbs_g: 15
+        carbs_g: 15,
       };
 
       // Mock dla pierwszego wywołania - tworzenie przepisu
       const createMock = vi.fn().mockResolvedValue({
         data: {
-          id: '1',
+          id: "1",
           user_id: userId,
           name: mockRecipe.name,
           description: mockRecipe.description,
@@ -163,35 +176,36 @@ describe('RecipeService', () => {
           kcal: 0,
           protein_g: 0,
           fat_g: 0,
-          carbs_g: 0
+          carbs_g: 0,
         },
-        error: null
+        error: null,
       });
 
       // Mock dla drugiego wywołania - aktualizacja wartości odżywczych
       const updateMock = vi.fn().mockResolvedValue({
         data: {
-          id: '1',
+          id: "1",
           user_id: userId,
           name: mockRecipe.name,
           description: mockRecipe.description,
           ingredients: mockRecipe.ingredients,
           steps: mockRecipe.steps,
           created_at: new Date().toISOString(),
-          ...mockNutrition
+          ...mockNutrition,
         },
-        error: null
+        error: null,
       });
 
-      vi.spyOn(nutritionService, 'calculateNutrition').mockResolvedValue(mockNutrition);
-      
-      vi.spyOn(supabaseClient, 'from').mockReturnValue({
+      vi.spyOn(nutritionService, "calculateNutrition").mockResolvedValue(mockNutrition);
+
+      vi.spyOn(supabaseClient, "from").mockReturnValue({
         select: vi.fn().mockReturnThis(),
         insert: vi.fn().mockReturnThis(),
         update: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn()
-          .mockImplementationOnce(createMock)  // Pierwsze wywołanie - insert
+        single: vi
+          .fn()
+          .mockImplementationOnce(createMock) // Pierwsze wywołanie - insert
           .mockImplementationOnce(updateMock), // Drugie wywołanie - update
       });
 
@@ -204,41 +218,41 @@ describe('RecipeService', () => {
           kcal: mockNutrition.kcal,
           proteinG: mockNutrition.protein_g,
           fatG: mockNutrition.fat_g,
-          carbsG: mockNutrition.carbs_g
+          carbsG: mockNutrition.carbs_g,
         })
       );
     });
 
-    it('should delete recipe if nutrition calculation fails', async () => {
-      vi.spyOn(nutritionService, 'calculateNutrition').mockRejectedValue(new Error('AI Error'));
-      const deleteSpy = vi.spyOn(supabaseClient.from('recipes'), 'delete');
+    it("should delete recipe if nutrition calculation fails", async () => {
+      vi.spyOn(nutritionService, "calculateNutrition").mockRejectedValue(new Error("AI Error"));
+      const deleteSpy = vi.spyOn(supabaseClient.from("recipes"), "delete");
 
-      await expect(service.createRecipe(mockRecipe)).rejects.toThrow('AI Error');
+      await expect(service.createRecipe(mockRecipe)).rejects.toThrow("AI Error");
       expect(deleteSpy).toHaveBeenCalled();
     });
   });
 
-  describe('createRecipe validation', () => {
+  describe("createRecipe validation", () => {
     const baseMockRecipe: RecipeCreateCommand = {
-      name: 'New Recipe',
-      description: 'Test Description',
-      ingredients: [{ name: 'ingredient1', amount: 100, unit: 'g' }],
-      steps: ['step1']
+      name: "New Recipe",
+      description: "Test Description",
+      ingredients: [{ name: "ingredient1", amount: 100, unit: "g" }],
+      steps: ["step1"],
     };
 
-    it('should throw validation error if name is missing', async () => {
-      const mockRecipe = { ...baseMockRecipe, name: '' };
+    it("should throw validation error if name is missing", async () => {
+      const mockRecipe = { ...baseMockRecipe, name: "" };
       await expect(service.createRecipe(mockRecipe)).rejects.toThrow();
     });
 
-    it('should throw validation error if ingredients are missing', async () => {
+    it("should throw validation error if ingredients are missing", async () => {
       const mockRecipe = { ...baseMockRecipe, ingredients: [] };
       await expect(service.createRecipe(mockRecipe)).rejects.toThrow();
     });
 
-    it('should throw validation error if steps are missing', async () => {
+    it("should throw validation error if steps are missing", async () => {
       const mockRecipe = { ...baseMockRecipe, steps: [] };
       await expect(service.createRecipe(mockRecipe)).rejects.toThrow();
     });
   });
-}); 
+});

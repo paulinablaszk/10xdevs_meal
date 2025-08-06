@@ -15,14 +15,14 @@ interface UnitSelectProps {
 
 export function UnitSelect({ value, onChange }: UnitSelectProps) {
   const units = [...Constants.public.Enums.unit_type] as [UnitType, ...UnitType[]];
-  
+
   if (!units.includes(value)) {
-    console.warn('UnitSelect: Otrzymana wartość nie znajduje się na liście dostępnych jednostek!');
+    console.warn("UnitSelect: Otrzymana wartość nie znajduje się na liście dostępnych jednostek!");
   }
 
   return (
-    <Select 
-      value={value} 
+    <Select
+      value={value}
       onValueChange={(val) => {
         onChange(val as UnitType);
       }}
@@ -39,4 +39,4 @@ export function UnitSelect({ value, onChange }: UnitSelectProps) {
       </SelectContent>
     </Select>
   );
-} 
+}

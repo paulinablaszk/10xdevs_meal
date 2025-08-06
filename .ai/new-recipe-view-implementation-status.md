@@ -45,4 +45,4 @@
 3. Dostępność (A11Y)
    - [ ] Sprawdzenie i poprawa dostępności formularza
    - [ ] Dodanie odpowiednich atrybutów ARIA
-   - [ ] Testowanie nawigacji klawiaturą 
+   - [ ] Testowanie nawigacji klawiaturą

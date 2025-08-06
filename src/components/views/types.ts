@@ -1,4 +1,4 @@
-import type { AiStatus } from '@/types';
+import type { AiStatus } from "@/types";
 
 export interface RecipeListItemVM {
   id: string;
@@ -34,4 +34,4 @@ export interface HeaderBarProps {
 
 export interface RecipeCardProps {
   recipe: RecipeListItemVM;
-} 
+}

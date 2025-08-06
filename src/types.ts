@@ -1,13 +1,13 @@
-import type { Database } from './db/database.types';
+import type { Database } from "./db/database.types";
 
 /**
  * Re-eksport wybranych typów z Supabase dla wygody.
  */
-export type ProfileRow = Database['public']['Tables']['profiles']['Row'];
-export type RecipeRow = Database['public']['Tables']['recipes']['Row'];
-export type AiRunRow = Database['public']['Tables']['ai_runs']['Row'];
-export type UnitType = Database['public']['Enums']['unit_type'];
-export type AiStatus = Database['public']['Enums']['ai_status'];
+export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+export type RecipeRow = Database["public"]["Tables"]["recipes"]["Row"];
+export type AiRunRow = Database["public"]["Tables"]["ai_runs"]["Row"];
+export type UnitType = Database["public"]["Enums"]["unit_type"];
+export type AiStatus = Database["public"]["Enums"]["ai_status"];
 
 /**
  * Util: konwersja snake_case → camelCase przy pomocy typów szablonowych.
@@ -35,7 +35,7 @@ export type ProfileDTO = RenameKeys<ProfileRow>;
 /**
  * Model komendy tworzenia profilu (POST /api/profile).
  */
-export type ProfileCreateCommand = Pick<ProfileDTO, 'calorieTarget' | 'allergens'>;
+export type ProfileCreateCommand = Pick<ProfileDTO, "calorieTarget" | "allergens">;
 
 /**
  * Model komendy aktualizacji profilu (PUT/PATCH /api/profile).
@@ -75,6 +75,8 @@ export interface IngredientDTO {
 export type RecipeDTO = RenameKeys<RecipeRow> & {
   ingredients: IngredientDTO[];
   steps: string[];
+  aiStatus?: "pending" | "success" | "error";
+  aiErrorMessage?: string;
 };
 
 /**
@@ -110,8 +112,8 @@ export interface RecipeListQuery {
   page?: number;
   limit?: number;
   search?: string;
-  sort?: 'created_at' | 'name' | 'kcal';
-  order?: 'asc' | 'desc';
+  sort?: "created_at" | "name" | "kcal";
+  order?: "asc" | "desc";
   ingredient?: string[];
 }
 
@@ -141,11 +143,11 @@ export interface JSONSchemaSpec {
 }
 
 export interface AuthResponse {
-  status: 'ok' | 'error';
+  status: "ok" | "error";
   message?: string;
 }
 
 export interface AuthError {
   field?: string;
   message: string;
-} 
+}

@@ -33,9 +33,6 @@ export const RecipeCard = ({ recipe }: RecipeCardProps) => {
         <CardHeader>
           <div className="flex justify-between items-start gap-2">
             <CardTitle className="text-xl">{name}</CardTitle>
-            {aiStatus === 'pending' && (
-              <Badge variant="secondary">Obliczanie...</Badge>
-            )}
             {aiStatus === 'error' && (
               <Badge variant="destructive">Błąd</Badge>
             )}

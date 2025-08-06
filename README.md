@@ -97,3 +97,7 @@ Next milestone: reach ≤10 % average error in nutritional calculations across t
 ## License
 
 This project is licensed under the MIT License – see the [LICENSE](./LICENSE) file for details.
+
+When modifying the directory structure, always update this section.
+
+Test change for workflow.
